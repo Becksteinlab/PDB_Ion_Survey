@@ -109,23 +109,6 @@ def gofr(protein, ions, maxdistance=20, oxynotprotein=False, binnumber=20, ax=No
         ofr(gee(protein, ion, maxdistance, oxynotprotein), maxdistance, binnumber, ax)
     return ax
 
-from xml.sax.xmlreader import AttributesImpl
-try:  # pragma no cover
-    from collections import OrderedDict
-except ImportError:  # pragma no cover
-    try:
-        from ordereddict import OrderedDict
-    except ImportError:
-        OrderedDict = dict
-try:  # pragma no cover
-    _basestring = basestring
-except NameError:  # pragma no cover
-    _basestring = str
-try:  # pragma no cover
-    _unicode = unicode
-except NameError:  # pragma no cover
-    _unicode = str
-
 def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text',
           depth=0, preprocessor=None, pretty=False, newl='\n', indent='\t',
           full_document=True):

@@ -180,7 +180,6 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
     -------------------------
     Credit to: Martin Blech
     """
-
     if full_document and len(input_dict)!=1:
         raise ValueError('Document must have exactly one root.')
     must_return=False

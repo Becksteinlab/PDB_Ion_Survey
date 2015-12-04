@@ -1,3 +1,16 @@
+"""
+Functions for querying, downloading, and analyzing ion coordination of PDB structures
+
+"""
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import MDAnalysis as mda
+
+
 def gee(protein, ion, maxdistance=20):
     """Gives the distances of oxygen atoms from an ion.
 
@@ -14,8 +27,6 @@ def gee(protein, ion, maxdistance=20):
             `pandas.DataFrame` containing resids, resnames, and atom names
             for each oxygen in the protein file
     """
-    import numpy as np
-    import pandas as pd
     u=protein
     oxy=u.select_atoms('protein and name O*')
     d=oxy.positions-ion.position
@@ -28,6 +39,7 @@ def gee(protein, ion, maxdistance=20):
             columns=['resid', 'resname', 'atomname', 'distance'])
     df=df[df['distance'] < maxdistance]
     return df
+
 
 def ofr(df, maxdistance, binnumber, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
@@ -54,9 +66,6 @@ def ofr(df, maxdistance, binnumber, ax=None):
         *ax*
             axis used for plotting
     """
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import numpy as np
     if ax is None:
         fig = plt.figure(figsize=(4,3))
         ax = fig.add_subplot(1,1,1)
@@ -65,6 +74,7 @@ def ofr(df, maxdistance, binnumber, ax=None):
     #print df[df['distance'] < maxdistance].sort(columns='distance', inplace=False)
     ax.plot(base[:-1], cumulative)
     return ax
+
 
 def gofr(protein, ions, maxdistance, binnumber):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
@@ -108,6 +118,7 @@ try:  # pragma no cover
     _unicode = unicode
 except NameError:  # pragma no cover
     _unicode = str
+
 
 def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text',
           depth=0, preprocessor=None, pretty=False, newl='\n', indent='\t',
@@ -201,6 +212,7 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
             pass
         return value
 
+
 def get_proteins(ionname):
     """Searches PDB for files with a specified bound ion.
     
@@ -231,6 +243,7 @@ def get_proteins(ionname):
     idlist=str(result)
     idlist=idlist.split('\n')
     return idlist
+
 
 def get_pdb_file(pdb_id, compression=False):
     '''Get the full PDB file associated with a PDB_ID

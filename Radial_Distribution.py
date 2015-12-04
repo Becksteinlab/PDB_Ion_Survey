@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 
 
+### PDB file parsing and analysis
+
 def gee(protein, ion, maxdistance=20):
     """Gives the distances of oxygen atoms from an ion.
 
@@ -102,23 +104,8 @@ def gofr(protein, ions, maxdistance, binnumber):
         ofr(gee(protein, ion), maxdistance, binnumber, ax=ax)
     return ax
 
-from xml.sax.xmlreader import AttributesImpl
-try:  # pragma no cover
-    from collections import OrderedDict
-except ImportError:  # pragma no cover
-    try:
-        from ordereddict import OrderedDict
-    except ImportError:
-        OrderedDict = dict
-try:  # pragma no cover
-    _basestring = basestring
-except NameError:  # pragma no cover
-    _basestring = str
-try:  # pragma no cover
-    _unicode = unicode
-except NameError:  # pragma no cover
-    _unicode = str
 
+### PDB querying and downloading
 
 def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text',
           depth=0, preprocessor=None, pretty=False, newl='\n', indent='\t',

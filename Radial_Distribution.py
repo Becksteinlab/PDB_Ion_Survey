@@ -1,17 +1,13 @@
 """
 Functions for querying, downloading, and analyzing ion coordination of PDB structures
-
 """
-
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 import MDAnalysis as mda
 
-
-def gee(protein, ion, maxdistance=20):
+def gee(protein, ion, maxdistance=20, oxynotprotein=False):
     """Gives the distances of oxygen atoms from an ion.
 
     :Arguments:
@@ -20,15 +16,20 @@ def gee(protein, ion, maxdistance=20):
         *ion*
             ion Atom
         *maxdistance*
-            maximum distance of interest from the ion
-    
+            maximum distance of interest from the ion; default=20
+        *oxynotprotein*
+            boolean value of whether to include oxygens not in the protein; default=False
+
     :Returns:
         *df*
             `pandas.DataFrame` containing resids, resnames, and atom names
             for each oxygen in the protein file
     """
     u=protein
-    oxy=u.select_atoms('protein and name O*')
+    if oxynotprotein=True
+        oxy=u.select_atoms('name O*')
+    else:
+        oxy=u.select_atoms('protein and name O*')
     d=oxy.positions-ion.position
     distance=(np.sum(d*d, axis=1))**.5
     distances=list(distance)
@@ -40,28 +41,27 @@ def gee(protein, ion, maxdistance=20):
     df=df[df['distance'] < maxdistance]
     return df
 
-
-def ofr(df, maxdistance, binnumber, ax=None):
+def ofr(df, maxdistance=20, binnumber=20, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
-    
+
     :Arguments:
         *df*
             `pandas.DataFrame` containing resids, resnames, and atom names
             for each oxygen surrounding the ion
         *maxdistance*
-            maximum distance of interest from the ion
+            maximum distance of interest from the ion; default=20
         *binnumber*
-            number of desired bins for cumulative histogram
+            number of desired bins for cumulative histogram; default=20
         *ax*
-            axis to plot on
-    
+            axis to plot on; default=None
+
     :Prints:
         *cumulative histogram*
             number of oxygens within a radius of the ion
         *distances table*
             atom numbers, resids, resnames, atom names, and distances from the ion
             of each oxygen
-    
+
     :Returns:
         *ax*
             axis used for plotting
@@ -75,31 +75,38 @@ def ofr(df, maxdistance, binnumber, ax=None):
     ax.plot(base[:-1], cumulative)
     return ax
 
-
-def gofr(protein, ions, maxdistance, binnumber):
+def gofr(protein, ions, maxdistance=20, oxynotprotein=False, binnumber=20, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
-    
+
     :Arguments:
         *protein*
             protein Universe
         *ions*
             AtomGroup of ions
         *maxdistance*
-            maximum distance of interest from the ion
+            maximum distance of interest from the ion; default=20
+        *oxynotprotein*
+            boolean value of whether to include oxygens not in the protein; default=False
         *binnumber*
-            number of desired bins for cumulative histogram
-    
+            number of desired bins for cumulative histogram; default=20
+        *ax*
+            axis to plot on; default=None
+
     :Prints:
         *cumulative histogram*
             number of oxygens within a radius of the ion
         *distances table*
             atom numbers, resids, resnames, atom names, and distances from the ion
             of each oxygen
+
+    :Returns:
+        *ax*
+            axis used for plotting
     """
     fig=plt.figure(figsize=(4,3))
     ax=fig.add_subplot(1,1,1)
     for ion in ions:
-        ofr(gee(protein, ion), maxdistance, binnumber, ax=ax)
+        ofr(gee(protein, ion, maxdistance, oxynotprotein), maxdistance, binnumber, ax)
     return ax
 
 from xml.sax.xmlreader import AttributesImpl
@@ -118,7 +125,6 @@ try:  # pragma no cover
     _unicode = unicode
 except NameError:  # pragma no cover
     _unicode = str
-
 
 def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text',
           depth=0, preprocessor=None, pretty=False, newl='\n', indent='\t',
@@ -173,7 +179,6 @@ def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text',
         if pretty and depth:
             content_handler.ignorableWhitespace(newl)
 
-
 def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
             **kwargs):
     """Emit an XML document for the given `input_dict`.
@@ -212,7 +217,6 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
             pass
         return value
 
-
 def get_proteins(ionname):
     """Searches PDB for files with a specified bound ion.
     
@@ -243,7 +247,6 @@ def get_proteins(ionname):
     idlist=str(result)
     idlist=idlist.split('\n')
     return idlist
-
 
 def get_pdb_file(pdb_id, compression=False):
     '''Get the full PDB file associated with a PDB_ID

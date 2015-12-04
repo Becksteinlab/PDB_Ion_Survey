@@ -6,6 +6,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
+import urllib2
+import os.path
+from cStringIO import StringIO
+from xml.sax.saxutils import XMLGenerator
 
 def gee(protein, ion, maxdistance=20, oxynotprotein=False):
     """Gives the distances of oxygen atoms from an ion.
@@ -176,8 +180,7 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
     -------------------------
     Credit to: Martin Blech
     """
-    from cStringIO import StringIO
-    from xml.sax.saxutils import XMLGenerator
+
     if full_document and len(input_dict)!=1:
         raise ValueError('Document must have exactly one root.')
     must_return=False
@@ -212,7 +215,6 @@ def get_proteins(ionname):
     -------------------------
     Credit to: William Gilpin
     """
-    import urllib2
     query_params=dict()
     querytype='ChemCompIdQuery'
     query_params['queryType']='org.pdb.query.simple.ChemCompIdQuery'
@@ -244,8 +246,6 @@ def get_pdb_file(pdb_id, compression=False):
     -------------------------
     Credit to: William Gilpin
     '''
-    import urllib2
-    import os.path
     fullurl='http://www.rcsb.org/pdb/download/downloadFile.do?fileFormat=pdb'
     if compression:
         fullurl += '&compression=YES'

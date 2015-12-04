@@ -26,7 +26,7 @@ def gee(protein, ion, maxdistance=20, oxynotprotein=False):
             for each oxygen in the protein file
     """
     u=protein
-    if oxynotprotein=True
+    if oxynotprotein=True:
         oxy=u.select_atoms('name O*')
     else:
         oxy=u.select_atoms('protein and name O*')

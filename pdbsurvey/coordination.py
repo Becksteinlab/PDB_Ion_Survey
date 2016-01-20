@@ -1,5 +1,5 @@
 """
-Functions for querying, downloading, and analyzing ion coordination of PDB structures
+Functions for analyzing ion coordination in PDB structures
 """
 
 import numpy as np

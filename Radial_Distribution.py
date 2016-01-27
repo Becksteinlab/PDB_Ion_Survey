@@ -2,6 +2,7 @@
 Functions for querying, downloading, and analyzing ion coordination of PDB structures
 """
 
+from collections import OrderedDict
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -10,8 +11,9 @@ import urllib2
 import os.path
 from cStringIO import StringIO
 from xml.sax.saxutils import XMLGenerator
+from xml.sax.xmlreader import AttributesImpl
 
-def gee(protein, ion, maxdistance=20, oxynotprotein=False):
+def gee(protein, ion, maxdistance=20, oxynotprotein=True):
     """Gives the distances of oxygen atoms from an ion.
 
     :Arguments:
@@ -22,7 +24,7 @@ def gee(protein, ion, maxdistance=20, oxynotprotein=False):
         *maxdistance*
             maximum distance of interest from the ion; default=20
         *oxynotprotein*
-            boolean value of whether to include oxygens not in the protein; default=False
+            boolean value of whether to include oxygens not in the protein; default=True
 
     :Returns:
         *df*
@@ -34,13 +36,14 @@ def gee(protein, ion, maxdistance=20, oxynotprotein=False):
         oxy=u.select_atoms('name O*')
     else:
         oxy=u.select_atoms('protein and name O*')
-    d=oxy.positions-ion.position
-    distance=(np.sum(d*d, axis=1))**.5
-    distances=list(distance)
+    box=u.dimensions
+    distances=mda.lib.distances.distance_array(ion.position[np.newaxis, :], 
+                                               oxy.positions, box=box)
     oxy_rnames=[atom.resname for atom in oxy]
     oxy_rids=[atom.resid for atom in oxy]
-    oxy_names=[atom.name for atom in oxy]
-    df=pd.DataFrame({'resid': oxy_rids, 'resname': oxy_rnames, 'atomname': oxy_names, 'distance': distances},
+    oxy_names=[atom.name for atom in oxy]    
+    df=pd.DataFrame({'resid': oxy_rids, 'resname': oxy_rnames, 
+                     'atomname': oxy_names, 'distance': distances[0]},
             columns=['resid', 'resname', 'atomname', 'distance'])
     df=df[df['distance'] < maxdistance]
     return df
@@ -126,7 +129,7 @@ def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text',
             return
         key, value = result
     if (not hasattr(value, '__iter__')
-            or isinstance(value, _basestring)
+            or isinstance(value, basestring)
             or isinstance(value, dict)):
         value = [value]
     for index, v in enumerate(value):
@@ -135,8 +138,8 @@ def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text',
         if v is None:
             v = OrderedDict()
         elif not isinstance(v, dict):
-            v = _unicode(v)
-        if isinstance(v, _basestring):
+            v = unicode(v)
+        if isinstance(v, basestring):
             v = OrderedDict(((cdata_key, v),))
         cdata = None
         attrs = OrderedDict()
@@ -202,12 +205,20 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
             pass
         return value
 
-def get_proteins(ionname):
+def get_proteins(ionname, containsProtein=True, containsDna=False, containsRna=False, containsHybrid=False):
     """Searches PDB for files with a specified bound ion.
     
     :Arguments:
         *ionname*
             name of desired ion
+        *containsProtein*
+            boolean value of whether to include protein molecules in the search; default=True
+        *containsDna*
+            boolean value of whether to include DNA molecules in the search; default=False
+        *containsRna*
+            boolean value of whether to include RNA molecules in the search; default=False
+        *containsHybrid*
+            boolean value of whether to include DNA/RNA hybrid molecules in the search; default=False
     :Returns:
         *idlist*
             ids of all PDB files containing ions with name ionname
@@ -215,11 +226,8 @@ def get_proteins(ionname):
     Credit to: William Gilpin
     """
     query_params=dict()
-    querytype='ChemCompIdQuery'
     query_params['queryType']='org.pdb.query.simple.ChemCompIdQuery'
-    query_params['description']='Chemical ID(s):  '+ionname+' and Polymeric type is Any'
     query_params['chemCompId']=ionname
-    query_params['polymericType']='Any'
     scan_params=dict()
     scan_params['orgPdbQuery']=query_params
     url='http://www.rcsb.org/pdb/rest/search'
@@ -230,7 +238,39 @@ def get_proteins(ionname):
     result=f.read()
     idlist=str(result)
     idlist=idlist.split('\n')
-    return idlist
+    query_paramsB=dict()
+    query_paramsB['queryType']='org.pdb.query.simple.ChainTypeQuery'
+    if containsProtein:
+        query_paramsB['containsProtein']='Y'
+    else:
+        query_paramsB['containsProtein']='N'
+    if containsDna:
+        query_paramsB['containsDna']='Y'
+    else:
+        query_paramsB['containsDna']='N'
+    if containsRna:
+        query_paramsB['containsRna']='Y'
+    else:
+        query_paramsB['containsRna']='N'
+    if containsHybrid:
+        query_paramsB['containsHybrid']='Y'
+    else:
+        query_paramsB['containsHybrid']='N'
+    scan_paramsB=dict()
+    scan_paramsB['orgPdbQuery']=query_paramsB
+    urlB='http://www.rcsb.org/pdb/rest/search'
+    queryTextB=unparse(scan_paramsB, pretty=True)
+    queryTextB=queryTextB.encode()
+    reqB=urllib2.Request(urlB, data=queryTextB)
+    f=urllib2.urlopen(reqB)
+    resultB=f.read()
+    idlistB=str(resultB)
+    idlistB=idlistB.split('\n')
+    idset=set(idlist)
+    idsetB=set(idlistB)
+    ids=idset.intersection(idsetB)
+    ids=list(ids)
+    return ids
 
 def get_pdb_file(pdb_id, compression=False):
     '''Get the full PDB file associated with a PDB_ID

@@ -8,9 +8,9 @@ The input data are crystal structures from the [Protein Databank](http://www.pdb
 
 # How to Use
 
-Use get_proteins to search the PDB for molecules of a certain type with a specified ion.
-Use get_pdb_file to download pdb files from the PDB.
-Use gee to create radial distributions for oxygen atoms around an ion.
-Use ofr to create a cumulative radial distribution function for oxygen atoms around an ion.
-Use gofr to use both gee and ofr.
-Talk to Martin Blech to use unparse or _emit.
+* Use get_proteins to search the PDB for molecules of a certain type with a specified ion.
+* Use get_pdb_file to download pdb files from the PDB.
+* Use gee to create radial distributions for oxygen atoms around an ion.
+* Use ofr to create a cumulative radial distribution function for oxygen atoms around an ion.
+* Use gofr to use both gee and ofr.
+* Talk to Martin Blech to use unparse or _emit.

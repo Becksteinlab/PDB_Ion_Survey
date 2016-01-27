@@ -5,9 +5,10 @@ Functions for analyzing ion coordination in PDB structures
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
 import MDAnalysis as mda
 
-def gee(protein, ion, maxdistance=20, oxynotprotein=False):
+def gee(protein, ion, maxdistance=20, oxynotprotein=True):
     """Gives the distances of oxygen atoms from an ion.
 
     :Arguments:
@@ -18,7 +19,7 @@ def gee(protein, ion, maxdistance=20, oxynotprotein=False):
         *maxdistance*
             maximum distance of interest from the ion; default=20
         *oxynotprotein*
-            boolean value of whether to include oxygens not in the protein; default=False
+            boolean value of whether to include oxygens not in the protein; default=True
 
     :Returns:
         *df*
@@ -30,13 +31,14 @@ def gee(protein, ion, maxdistance=20, oxynotprotein=False):
         oxy=u.select_atoms('name O*')
     else:
         oxy=u.select_atoms('protein and name O*')
-    d=oxy.positions-ion.position
-    distance=(np.sum(d*d, axis=1))**.5
-    distances=list(distance)
+    box=u.dimensions
+    distances=mda.lib.distances.distance_array(ion.position[np.newaxis, :], 
+                                               oxy.positions, box=box)
     oxy_rnames=[atom.resname for atom in oxy]
     oxy_rids=[atom.resid for atom in oxy]
-    oxy_names=[atom.name for atom in oxy]
-    df=pd.DataFrame({'resid': oxy_rids, 'resname': oxy_rnames, 'atomname': oxy_names, 'distance': distances},
+    oxy_names=[atom.name for atom in oxy]    
+    df=pd.DataFrame({'resid': oxy_rids, 'resname': oxy_rnames, 
+                     'atomname': oxy_names, 'distance': distances[0]},
             columns=['resid', 'resname', 'atomname', 'distance'])
     df=df[df['distance'] < maxdistance]
     return df
@@ -75,7 +77,7 @@ def ofr(df, maxdistance=20, binnumber=20, ax=None):
     ax.plot(base[:-1], cumulative)
     return ax
 
-def gofr(protein, ions, maxdistance=20, oxynotprotein=False, binnumber=20, ax=None):
+def gofr(protein, ions, maxdistance=20, oxynotprotein=True, binnumber=20, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
 
     :Arguments:

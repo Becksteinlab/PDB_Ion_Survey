@@ -167,11 +167,13 @@ def get_proteins(ionname, containsProtein=True, containsDna=False, containsRna=F
     ids=list(ids)
     return ids
 
-def get_pdb_file(pdb_id, compression=False):
+def get_pdb_file(pdb_id, path, compression=False):
     '''Get the full PDB file associated with a PDB_ID
     :Arguments:
         *pdb_id*
             four character string giving a pdb entry of interest
+        *path*
+            path to the desired location of the file
         *compression
             retrieve a compressed (gz) version of the file if True
     :Returns:
@@ -190,7 +192,7 @@ def get_pdb_file(pdb_id, compression=False):
     f=urllib2.urlopen(req)
     result=f.read()
     result=result.decode('unicode_escape')
-    if not os.path.exists('/nfs/homes/kreidy/PDB\ API/'+pdb_id+'.pdb'):
+    if not os.path.exists(path+pdb_id+'.pdb'):
         f_out=open(pdb_id+'.pdb', 'w')
         f_out.write(result)
         f_out.close()

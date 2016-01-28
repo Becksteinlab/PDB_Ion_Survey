@@ -5,7 +5,6 @@ Functions for analyzing ion coordination in PDB structures
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 import MDAnalysis as mda
 
 def gee(protein, ion, maxdistance=20, oxynotprotein=True):

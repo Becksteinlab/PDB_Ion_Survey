@@ -3,7 +3,6 @@ Functions for querying, downloading, and analyzing ion coordination of PDB struc
 """
 
 from collections import OrderedDict
-
 import urllib2
 import os.path
 from cStringIO import StringIO
@@ -157,8 +156,8 @@ def get_proteins(ionname, containsProtein=True, containsDna=False, containsRna=F
     queryTextB=unparse(scan_paramsB, pretty=True)
     queryTextB=queryTextB.encode()
     reqB=urllib2.Request(urlB, data=queryTextB)
-    f=urllib2.urlopen(reqB)
-    resultB=f.read()
+    fB=urllib2.urlopen(reqB)
+    resultB=fB.read()
     idlistB=str(resultB)
     idlistB=idlistB.split('\n')
     idset=set(idlist)
@@ -184,10 +183,10 @@ def get_pdb_file(pdb_id, path, compression=False):
     '''
     fullurl='http://www.rcsb.org/pdb/download/downloadFile.do?fileFormat=pdb'
     if compression:
-        fullurl += '&compression=YES'
+        fullurl+='&compression=YES'
     else:
-        fullurl += '&compression=NO'
-    fullurl += '&structureId=' + pdb_id
+        fullurl+='&compression=NO'
+    fullurl+='&structureId='+pdb_id
     req=urllib2.Request(fullurl)
     f=urllib2.urlopen(req)
     result=f.read()

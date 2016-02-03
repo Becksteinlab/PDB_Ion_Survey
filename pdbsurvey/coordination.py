@@ -5,12 +5,10 @@ Functions for analyzing ion coordination in PDB structures
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 import MDAnalysis as mda
 
 def gee(protein, ion, maxdistance=20, oxynotprotein=True):
     """Gives the distances of oxygen atoms from an ion.
-
     :Arguments:
         *protein*
             protein Universe
@@ -45,7 +43,6 @@ def gee(protein, ion, maxdistance=20, oxynotprotein=True):
 
 def ofr(df, maxdistance=20, binnumber=20, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
-
     :Arguments:
         *df*
             `pandas.DataFrame` containing resids, resnames, and atom names
@@ -79,7 +76,6 @@ def ofr(df, maxdistance=20, binnumber=20, ax=None):
 
 def gofr(protein, ions, maxdistance=20, oxynotprotein=True, binnumber=20, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
-
     :Arguments:
         *protein*
             protein Universe

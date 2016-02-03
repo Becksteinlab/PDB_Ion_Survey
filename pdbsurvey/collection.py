@@ -9,7 +9,6 @@ from cStringIO import StringIO
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl
 
-
 def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text',
           depth=0, preprocessor=None, pretty=False, newl='\n', indent='\t',
           full_document=True):
@@ -101,7 +100,6 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
 
 def get_proteins(ionname, containsProtein=True, containsDna=False, containsRna=False, containsHybrid=False):
     """Searches PDB for files with a specified bound ion.
-    
     :Arguments:
         *ionname*
             name of desired ion

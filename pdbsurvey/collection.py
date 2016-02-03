@@ -115,7 +115,7 @@ def get_proteins(ionname, containsProtein=True, containsDna=False, containsRna=F
         *idlist*
             ids of all PDB files containing ions with name ionname
    -------------------------
-    Credit to: William Gilpin
+    Based off of a function made by William Gilpin
     """
     query_params=dict()
     query_params['queryType']='org.pdb.query.simple.ChemCompIdQuery'

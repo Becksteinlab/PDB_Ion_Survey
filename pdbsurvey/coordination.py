@@ -41,12 +41,14 @@ def gee(protein, ion, maxdistance = 20, oxynotprotein = True):
     df = df[df['distance'] < maxdistance]
     return df
 
-def ofr(df, maxdistance = 20, binnumber = 20, ax = None):
+def ofr(df, yaxis = 'distance', maxdistance = 20, binnumber = 20, ax = None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *df*
             `pandas.DataFrame` containing resids, resnames, and atom names
             for each oxygen surrounding the ion
+        *yaxis*
+            collumn in df to be graphed on the y-axis; default = distance
         *maxdistance*
             maximum distance of interest from the ion; default = 20
         *binnumber*
@@ -68,19 +70,21 @@ def ofr(df, maxdistance = 20, binnumber = 20, ax = None):
     if ax is None:
         fig = plt.figure(figsize = (4,3))
         ax = fig.add_subplot(1,1,1)
-    values, base = np.histogram(df[df['distance'] < maxdistance]['distance'], bins = binnumber)
+    values, base = np.histogram(df[df[yaxis] < maxdistance][yaxis], bins = binnumber)
     cumulative = np.cumsum(values)
     #print df[df['distance'] < maxdistance].sort(columns = 'distance', inplace = False)
     ax.plot(base[:-1], cumulative)
     return ax
 
-def gofr(protein, ions, maxdistance = 20, oxynotprotein = True, binnumber = 20, ax = None):
+def gofr(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = True, binnumber = 20, ax = None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *protein*
             protein Universe
         *ions*
             AtomGroup of ions
+        *yaxis*
+            collumn in df to be graphed on the y-axis; default = distance
         *maxdistance*
             maximum distance of interest from the ion; default = 20
        *oxynotprotein*
@@ -103,5 +107,5 @@ def gofr(protein, ions, maxdistance = 20, oxynotprotein = True, binnumber = 20, 
     fig = plt.figure(figsize = (4,3))
     ax = fig.add_subplot(1,1,1)
     for ion in ions:
-        ofr(gee(protein, ion, maxdistance, oxynotprotein), maxdistance, binnumber, ax)
+        ofr(gee(protein, ion, maxdistance, oxynotprotein), yaxis, maxdistance, binnumber, ax)
     return ax

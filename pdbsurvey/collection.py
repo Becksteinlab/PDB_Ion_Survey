@@ -4,7 +4,7 @@ Functions for querying, downloading, and analyzing ion coordination of PDB struc
 
 from collections import OrderedDict
 import urllib2
-import os
+import os.path
 from cStringIO import StringIO
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl
@@ -185,9 +185,7 @@ def get_pdb_file(pdb_id, path, compression = False):
     f = urllib2.urlopen(req)
     result = f.read()
     result = result.decode('unicode_escape')
-    if os.getcwd != path:
-        os.chdir(path)
-    if not os.path.isfile(pdb_id + '.pdb'):
-        f_out = open(pdb_id + '.pdb', 'w')
+    if not os.path.isfile(os.path.join(path, pdb_id) + '.pdb'):
+        f_out = open(os.path.join(path, pdb_id) + '.pdb', 'w')
         f_out.write(result)
         f_out.close()

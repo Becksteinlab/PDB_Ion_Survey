@@ -2,12 +2,19 @@
 Functions for querying, downloading, and analyzing ion coordination of PDB structures
 """
 
-from collections import OrderedDict
+import logging
 import urllib2
 import os.path
+import sys
+from collections import OrderedDict
 from cStringIO import StringIO
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl
+
+
+# this is how we identify an error message returned instead of a PDB file
+error_message = 'RCSB web servers'
+
 
 def _emit(key, value, content_handler, attr_prefix = '@', cdata_key = '#text', depth = 0, preprocessor = None, pretty = False, newl = '\n', indent = '\t', full_document=True):
     '''I do not know what this does.
@@ -58,6 +65,7 @@ def _emit(key, value, content_handler, attr_prefix = '@', cdata_key = '#text', d
         if pretty and depth:
             content_handler.ignorableWhitespace(newl)
 
+
 def unparse(input_dict, output = None, encoding = 'utf-8', full_document = True,
             **kwargs):
     """Emit an XML document for the given `input_dict`.
@@ -94,6 +102,7 @@ def unparse(input_dict, output = None, encoding = 'utf-8', full_document = True,
             pass
         return value
 
+
 def get_proteins(ionname, containsProtein = True, containsDna = False, containsRna = False, containsHybrid = False):
     """Searches PDB for files with a specified bound ion.
     :Arguments:
@@ -110,8 +119,10 @@ def get_proteins(ionname, containsProtein = True, containsDna = False, containsR
     :Returns:
         *idlist*
             ids of all PDB files containing ions with name ionname
-   -------------------------
+
+    -------------------------
     Based off of a function made by William Gilpin
+
     """
     query_params = dict()
     query_params['queryType'] = 'org.pdb.query.simple.ChemCompIdQuery'
@@ -160,6 +171,32 @@ def get_proteins(ionname, containsProtein = True, containsDna = False, containsR
     ids = list(ids)
     return ids
 
+
+def _make_logger(filename):
+    """Make a logger instance that prints to the screen and writes
+    to `filename`.
+
+    """
+    log = logging.getLogger('PDB_Ions')
+    log.setLevel(logging.WARNING)
+
+    if not any([isinstance(x, logging.StreamHandler) for x in log.handlers]):
+        ch = logging.StreamHandler(sys.stdout)
+        cf = logging.Formatter(
+            '%(name)-12s: %(levelname)-8s %(message)s')
+        ch.setFormatter(cf)
+        log.addHandler(ch)
+
+    if not any([isinstance(x, logging.FileHandler) for x in log.handlers]):
+        fh = logging.FileHandler(filename)
+        ff = logging.Formatter('%(asctime)s %(name)-12s '
+                               '%(levelname)-8s %(message)s')
+        fh.setFormatter(ff)
+        log.addHandler(fh)
+
+    return log
+
+
 def get_pdb_file(pdb_id, path, compression = False):
     '''Get the full PDB file associated with a PDB_ID
     :Arguments:
@@ -175,17 +212,33 @@ def get_pdb_file(pdb_id, path, compression = False):
     -------------------------
     Based off of a function made by William Gilpin
     '''
+    # get logger instance
+    log = _make_logger(os.path.join(path, 'pdb_ions_survey.log'))
+
     fullurl = 'http://www.rcsb.org/pdb/download/downloadFile.do?fileFormat=pdb'
     if compression:
         fullurl += '&compression=YES'
     else:
         fullurl += '&compression=NO'
     fullurl += '&structureId=' + pdb_id
+
+    # if file exists, don't download again 
+    if os.path.isfile(os.path.join(path, pdb_id) + '.pdb'):
+        return
+
+    # creates a string containing pdb file information
     req = urllib2.Request(fullurl)
     f = urllib2.urlopen(req)
     result = f.read()
     result = result.decode('unicode_escape')
-    if not os.path.isfile(os.path.join(path, pdb_id) + '.pdb'):
-        f_out = open(os.path.join(path, pdb_id) + '.pdb', 'w')
-        f_out.write(result)
-        f_out.close()
+
+    # tests result is not error
+    if error_message in result:
+        log.warning('RCSB PDB does not have a .pdb file available for' 
+                    'download for PDB ID {}'.format(pdb_id))
+        raise KeyError("PDB ID '{}' does not have a"
+                       ".pdb file available".format(pdb_id))
+
+    f_out = open(os.path.join(path, pdb_id) + '.pdb', 'w')
+    f_out.write(result)
+    f_out.close()

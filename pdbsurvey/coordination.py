@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
+import os.path
+%matplotlib inline
 
 def gee(protein, ion, maxdistance = 20, oxynotprotein = True):
     """Gives the distances of oxygen atoms from an ion.
@@ -87,7 +89,7 @@ def gofr(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = Tr
             collumn in df to be graphed on the y-axis; default = distance
         *maxdistance*
             maximum distance of interest from the ion; default = 20
-       *oxynotprotein*
+        *oxynotprotein*
             boolean value of whether to include oxygens not in the protein; default = False
         *binnumber*
             number of desired bins for cumulative histogram; default = 20
@@ -109,3 +111,55 @@ def gofr(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = Tr
     for ion in ions:
         ofr(gee(protein, ion, maxdistance, oxynotprotein), yaxis, maxdistance, binnumber, ax)
     return ax
+
+dataframe = []
+proteinids = []
+
+def aggregate(pdbids, path, maxdistance = 20, oxynotprotein = True):
+    """Aggregates dataframes into one dataframe
+    :Arguments:
+        *pdbids*
+            list of PDB codes corresponding to .pdb files to be aggregated (note that .pdb is not to be included in pdbids)
+        *path*
+            path to the file's directory
+        *maxdistance*
+            maximum distance of interest from the ion; default = 20
+        *oxynotprotein*
+            boolean value of whether to include oxygens not in the protein; default = True
+    :Returns:
+        *dataframe*
+            aggregated `pandas.DataFrame` containing resids, resnames, and atom names
+            for each oxygen in the protein file
+    """
+    for x in range(len(pdbids)):
+        try:
+            u = mda.Universe(os.path.join(path, pdbids[x]) + '.pdb', guess_bonds = False, permissive = False)
+            ions = u.select_atoms('not protein and name NA*')
+            for i, ion in enumerate(ions):
+                dataframe.append(gee(u, ion, maxdistance = maxdistance, oxynotprotein = oxynotprotein))
+                proteinids.append(pdbids[x] + '_{}'.format(i))
+                return dataframe
+        except KeyError:
+            continue
+    return dataframe, proteinids
+
+def aggregategraph(pdbids, path, yaxis = 'distance', binnumber = 20, maxdistance = 20, oxynotprotein = True):
+    """Produces an aggregated graph from multiple dataframes
+    :Arguments:
+        *pdbids*
+            list of PDB codes corresponding to .pdb files to be aggregated (note that .pdb is not to be included in pdbids)
+        *path*
+            path to the file's directory
+        *binnumber*
+            number of desired bins for cumulative histogram; default = 20
+        *maxdistance*
+            maximum distance of interest from the ion; default = 20
+        *oxynotprotein*
+            boolean value of whether to include oxygens not in the protein; default = True
+    :Returns:
+        *graph*
+            aggregated graph
+    """
+    dataframe = aggregate(pdbids, path, maxdistance = maxdistance, oxynotprotein = oxynotprotein)
+    df = pd.concat(dataframe, keys = proteinids, names = ['pdbids'])
+    df[yaxis].plot(kind = 'hist', bins = binnumber)

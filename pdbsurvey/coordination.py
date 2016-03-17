@@ -115,13 +115,15 @@ def gofr(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = Tr
 dataframe = []
 proteinids = []
 
-def aggregate(pdbids, path, maxdistance = 20, oxynotprotein = True):
+def aggregate(pdbids, path, ionname, maxdistance = 20, oxynotprotein = True):
     """Aggregates dataframes into one dataframe
     :Arguments:
         *pdbids*
             list of PDB codes corresponding to .pdb files to be aggregated (note that .pdb is not to be included in pdbids)
         *path*
             path to the file's directory
+        *ionname*
+            name of reference ion
         *maxdistance*
             maximum distance of interest from the ion; default = 20
         *oxynotprotein*
@@ -134,7 +136,7 @@ def aggregate(pdbids, path, maxdistance = 20, oxynotprotein = True):
     for x in range(len(pdbids)):
         try:
             u = mda.Universe(os.path.join(path, pdbids[x]) + '.pdb', guess_bonds = False, permissive = False)
-            ions = u.select_atoms('not protein and name NA*')
+            ions = u.select_atoms('not protein and name ' + ionname + '*')
             for i, ion in enumerate(ions):
                 dataframe.append(gee(u, ion, maxdistance = maxdistance, oxynotprotein = oxynotprotein))
                 proteinids.append(pdbids[x] + '_{}'.format(i))
@@ -143,13 +145,15 @@ def aggregate(pdbids, path, maxdistance = 20, oxynotprotein = True):
             continue
     return dataframe, proteinids
 
-def aggregategraph(pdbids, path, yaxis = 'distance', binnumber = 20, maxdistance = 20, oxynotprotein = True):
+def aggregategraph(pdbids, path, ionname, yaxis = 'distance', binnumber = 20, maxdistance = 20, oxynotprotein = True):
     """Produces an aggregated graph from multiple dataframes
     :Arguments:
         *pdbids*
             list of PDB codes corresponding to .pdb files to be aggregated (note that .pdb is not to be included in pdbids)
         *path*
             path to the file's directory
+        *ionname*
+            name of reference ion
         *binnumber*
             number of desired bins for cumulative histogram; default = 20
         *maxdistance*
@@ -160,6 +164,6 @@ def aggregategraph(pdbids, path, yaxis = 'distance', binnumber = 20, maxdistance
         *graph*
             aggregated graph
     """
-    dataframe = aggregate(pdbids, path, maxdistance = maxdistance, oxynotprotein = oxynotprotein)
+    dataframe = aggregate(pdbids, path, ionname = ionname, maxdistance = maxdistance, oxynotprotein = oxynotprotein)
     df = pd.concat(dataframe, keys = proteinids, names = ['pdbids'])
     df[yaxis].plot(kind = 'hist', bins = binnumber)

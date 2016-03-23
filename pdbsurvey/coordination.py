@@ -7,7 +7,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
 import os.path
-%matplotlib inline
 
 def gee(protein, ion, maxdistance = 20, oxynotprotein = True):
     """Gives the distances of oxygen atoms from an ion.

@@ -236,7 +236,7 @@ def get_pdb_file(pdb_id, path, compression = False):
     if error_message in result:
         log.warning('RCSB PDB does not have a .pdb file available for' 
                     'download for PDB ID {}'.format(pdb_id))
-        raise KeyError("PDB ID '{}' does not have a"
+        raise IOError("PDB ID '{}' does not have a"
                        ".pdb file available".format(pdb_id))
 
     f_out = open(os.path.join(path, pdb_id) + '.pdb', 'w')

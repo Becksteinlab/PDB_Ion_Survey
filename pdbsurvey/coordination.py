@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 import os.path
 
-def gee(protein, ion, maxdistance = 20, oxynotprotein = True):
+def gee(protein, ion, maxdistance=20, oxynotprotein=True):
     """Gives the distances of oxygen atoms from an ion.
     :Arguments:
         *protein*
@@ -25,6 +25,7 @@ def gee(protein, ion, maxdistance = 20, oxynotprotein = True):
             `pandas.DataFrame` containing resids, resnames, and atom names
             for each oxygen in the protein file
     """
+    columns = ['resid', 'resname', 'atomname', 'distance']
     u = protein
     if oxynotprotein:
         oxy = u.select_atoms('name O*')
@@ -38,11 +39,12 @@ def gee(protein, ion, maxdistance = 20, oxynotprotein = True):
     oxy_names = [atom.name for atom in oxy]    
     df = pd.DataFrame({'resid': oxy_rids, 'resname': oxy_rnames, 
                      'atomname': oxy_names, 'distance': distances[0]},
-            columns = ['resid', 'resname', 'atomname', 'distance'])
+            columns=columns)
     df = df[df['distance'] < maxdistance]
+    df = df.reset_index()[columns]
     return df
 
-def ofr(df, yaxis = 'distance', maxdistance = 20, binnumber = 20, ax = None):
+def ofr(df, yaxis='distance', maxdistance=20, binnumber=20, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *df*
@@ -77,7 +79,8 @@ def ofr(df, yaxis = 'distance', maxdistance = 20, binnumber = 20, ax = None):
     ax.plot(base[:-1], cumulative)
     return ax
 
-def gofr(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = True, binnumber = 20, ax = None):
+def gofr(protein, ions, yaxis='distance', maxdistance=20,
+         oxynotprotein = True, binnumber = 20, ax = None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *protein*
@@ -111,14 +114,12 @@ def gofr(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = Tr
         ofr(gee(protein, ion, maxdistance, oxynotprotein), yaxis, maxdistance, binnumber, ax)
     return ax
 
-dataframe = []
-proteinids = []
-
-def aggregate(pdbids, path, ionname, maxdistance = 20, oxynotprotein = True):
+def aggregate(pdbids, path, ionname, maxdistance=20, oxynotprotein=True):
     """Aggregates dataframes into one dataframe
     :Arguments:
         *pdbids*
-            list of PDB codes corresponding to .pdb files to be aggregated (note that .pdb is not to be included in pdbids)
+            list of PDB codes corresponding to .pdb files to be aggregated
+            (note that .pdb is not to be included in pdbids) 
         *path*
             path to the file's directory
         *ionname*
@@ -132,6 +133,8 @@ def aggregate(pdbids, path, ionname, maxdistance = 20, oxynotprotein = True):
             aggregated `pandas.DataFrame` containing resids, resnames, and atom names
             for each oxygen in the protein file
     """
+    dataframe = []
+
     for x in range(len(pdbids)):
         try:
             u = mda.Universe(os.path.join(path, pdbids[x]) + '.pdb', guess_bonds = False, permissive = False)
@@ -140,11 +143,12 @@ def aggregate(pdbids, path, ionname, maxdistance = 20, oxynotprotein = True):
                 dataframe.append(gee(u, ion, maxdistance = maxdistance, oxynotprotein = oxynotprotein))
                 proteinids.append(pdbids[x] + '_{}'.format(i))
                 return dataframe
-        except KeyError:
+        except IOError:
             continue
     return dataframe, proteinids
 
-def aggregategraph(pdbids, path, ionname, yaxis = 'distance', binnumber = 20, maxdistance = 20, oxynotprotein = True):
+def aggregategraph(pdbids, path, ionname, yaxis='distance',
+                   binnumber=20, maxdistance=20, oxynotprotein=True):
     """Produces an aggregated graph from multiple dataframes
     :Arguments:
         *pdbids*
@@ -163,6 +167,7 @@ def aggregategraph(pdbids, path, ionname, yaxis = 'distance', binnumber = 20, ma
         *graph*
             aggregated graph
     """
-    dataframe = aggregate(pdbids, path, ionname = ionname, maxdistance = maxdistance, oxynotprotein = oxynotprotein)
-    df = pd.concat(dataframe, keys = proteinids, names = ['pdbids'])
-    df[yaxis].plot(kind = 'hist', bins = binnumber)
+    dataframe = aggregate(pdbids, path, ionname=ionname,
+                          maxdistance=maxdistance, oxynotprotein=oxynotprotein)
+    df = pd.concat(dataframe, keys=proteinids, names=['pdbids'])
+    df[yaxis].plot(kind='hist', bins=binnumber)

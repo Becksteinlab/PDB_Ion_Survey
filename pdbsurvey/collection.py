@@ -122,7 +122,6 @@ def get_proteins(ionname, containsProtein = True, containsDna = False, containsR
 
     -------------------------
     Based off of a function made by William Gilpin
-
     """
     query_params = dict()
     query_params['queryType'] = 'org.pdb.query.simple.ChemCompIdQuery'

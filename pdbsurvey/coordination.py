@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 import os.path
 
-def gee(protein, ion, maxdistance = 20, oxynotprotein = True):
+def en(protein, ion, maxdistance = 20, oxynotprotein = True):
     """Gives the distances of oxygen atoms from an ion.
     :Arguments:
         *protein*
@@ -42,7 +42,7 @@ def gee(protein, ion, maxdistance = 20, oxynotprotein = True):
     df = df[df['distance'] < maxdistance]
     return df
 
-def ofr(df, yaxis = 'distance', maxdistance = 20, binnumber = 20, ax = None):
+def cume(df, yaxis = 'distance', maxdistance = 20, binnumber = 20, ax = None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *df*
@@ -77,7 +77,7 @@ def ofr(df, yaxis = 'distance', maxdistance = 20, binnumber = 20, ax = None):
     ax.plot(base[:-1], cumulative)
     return ax
 
-def gofr(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = True, binnumber = 20, ax = None):
+def cumin(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = True, binnumber = 20, ax = None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *protein*
@@ -108,7 +108,7 @@ def gofr(protein, ions, yaxis = 'distance', maxdistance = 20, oxynotprotein = Tr
     fig = plt.figure(figsize = (4,3))
     ax = fig.add_subplot(1,1,1)
     for ion in ions:
-        ofr(gee(protein, ion, maxdistance, oxynotprotein), yaxis, maxdistance, binnumber, ax)
+        cume(en(protein, ion, maxdistance, oxynotprotein), yaxis, maxdistance, binnumber, ax)
     return ax
 
 dataframe = []
@@ -137,7 +137,7 @@ def aggregate(pdbids, path, ionname, maxdistance = 20, oxynotprotein = True):
             u = mda.Universe(os.path.join(path, pdbids[x]) + '.pdb', guess_bonds = False, permissive = False)
             ions = u.select_atoms('not protein and name ' + ionname + '*')
             for i, ion in enumerate(ions):
-                dataframe.append(gee(u, ion, maxdistance = maxdistance, oxynotprotein = oxynotprotein))
+                dataframe.append(en(u, ion, maxdistance = maxdistance, oxynotprotein = oxynotprotein))
                 proteinids.append(pdbids[x] + '_{}'.format(i))
                 return dataframe
         except KeyError:

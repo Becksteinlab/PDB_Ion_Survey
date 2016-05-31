@@ -55,8 +55,7 @@ def cume(df, yaxis='distance', maxdistance=20, binnumber=20, ax=None):
         *maxdistance*
             maximum distance of interest from the ion; default = 20
         *binnumber*
-            number of desired bins for cumulative histogram; default = 20
-        *ax*
+            number of desired bins for cumulative histogram; default = 20        *ax*
             axis to plot on; default = None
 
     :Prints:

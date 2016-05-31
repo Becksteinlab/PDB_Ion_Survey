@@ -44,7 +44,7 @@ def en(protein, ion, maxdistance=20, oxynotprotein=True):
     df = df.reset_index()[columns]
     return df
 
-def cume(df, yaxis='distance', maxdistance=20, binnumber=20, ax=None):
+def cume(df, yaxis='distance', maxdistance=20, binnumber=20, nummols=1, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *df*
@@ -57,6 +57,8 @@ def cume(df, yaxis='distance', maxdistance=20, binnumber=20, ax=None):
         *binnumber*
             number of desired bins for cumulative histogram; default = 20        *ax*
             axis to plot on; default = None
+        *nummols*
+            number of proteins/molecules contributing to df
 
     :Prints:
         *cumulative histogram*
@@ -73,13 +75,15 @@ def cume(df, yaxis='distance', maxdistance=20, binnumber=20, ax=None):
         fig = plt.figure(figsize = (4,3))
         ax = fig.add_subplot(1,1,1)
     values, base = np.histogram(df[df[yaxis] < maxdistance][yaxis], bins = binnumber)
+
+    values = values/float(nummols)
     cumulative = np.cumsum(values)
     #print df[df['distance'] < maxdistance].sort(columns = 'distance', inplace = False)
     ax.plot(base[:-1], cumulative)
     return ax
 
-def cumin(protein, ions, yaxis='distance', maxdistance=20,
-         oxynotprotein = True, binnumber = 20, ax = None):
+def cumin(protein, ions, yaxis='distance', maxdistance=20, oxynotprotein=True,
+          binnumber=20, nummols=1, ax=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *protein*
@@ -110,10 +114,8 @@ def cumin(protein, ions, yaxis='distance', maxdistance=20,
     fig = plt.figure(figsize = (4,3))
     ax = fig.add_subplot(1,1,1)
     for ion in ions:
-        cume(en(protein, ion, maxdistance, oxynotprotein), yaxis, maxdistance, binnumber, ax)
+        cume(en(protein=protein, ion=ion, maxdistance=maxdistance, oxynotprotein=oxynotprotein), yaxis=yaxis, maxdistance=maxdistance, binnumber=binnumber, nummols=nummols, ax=ax)
     return ax
-
-dataframe2 = []
 
 def gee(files, filename):
     '''Produces a graph of density as a function of distance
@@ -126,6 +128,7 @@ def gee(files, filename):
         *graph*
             graph of g(r)
     '''
+    dataframe2 = []
     for x in range(len(files)):
         try:
             f = pd.read_csv(pat + files[x], index_col=0)
@@ -145,7 +148,6 @@ def gee(files, filename):
 
     ax = plt.subplot(1,1,1)
     ax.plot(m, density)
-    ax.figure.savefig(filename)
 
 def aggregate(pdbids, path, ionname, maxdistance=20, oxynotprotein=True):
     """Aggregates dataframes into one dataframe

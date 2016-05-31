@@ -113,6 +113,40 @@ def cumin(protein, ions, yaxis='distance', maxdistance=20,
         cume(en(protein, ion, maxdistance, oxynotprotein), yaxis, maxdistance, binnumber, ax)
     return ax
 
+dataframe2 = []
+
+def gee(files, filename):
+    '''Produces a graph of density as a function of distance
+    :Arguments:
+        *files*
+            list of dataframe file locations
+        *filename*
+            desired name of output file
+    :Returns:
+        *graph*
+            graph of g(r)
+    '''
+    for x in range(len(files)):
+        try:
+            f = pd.read_csv(pat + files[x], index_col=0)
+            pdbid = f[0:4]
+            dataframe2.append(f)
+        except:
+            with open('failures.out', 'a') as f:
+                f.write(pdbfile.name + '\n')
+
+    df = pd.concat(dataframe2, keys = pdbid, names = ['pdbids'])
+
+    h, e = np.histogram(df['distance'], bins = 100)
+    m = .5 * (e[:1] + e[1:])
+    V = 4 / 3 * np.pi * (e[1:] ** 3 - e[:1] ** 3)
+
+    density = h / V
+
+    ax = plt.subplot(1,1,1)
+    ax.plot(m, density)
+    ax.figure.savefig(filename)
+
 def aggregate(pdbids, path, ionname, maxdistance=20, oxynotprotein=True):
     """Aggregates dataframes into one dataframe
     :Arguments:

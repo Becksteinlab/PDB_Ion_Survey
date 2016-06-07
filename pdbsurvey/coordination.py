@@ -131,16 +131,18 @@ def gee(files, filename):
     dataframe2 = []
     for x in range(len(files)):
         try:
-            f = pd.read_csv(pat + files[x], index_col=0)
-            pdbid = f[0:4]
+            f = pd.read_csv(files[x], index_col=0)
             dataframe2.append(f)
         except:
             with open('failures.out', 'a') as f:
-                f.write(pdbfile.name + '\n')
+                f.write(files[x] + '\n')
 
-    df = pd.concat(dataframe2, keys = pdbid, names = ['pdbids'])
+    try:
+        dataframe2 = pd.concat(dataframe2, names = ['pdbids'])
+    except:
+        dataframe2 = dataframe2[0]
 
-    h, e = np.histogram(df['distance'], bins = 100)
+    h, e = np.histogram(dataframe2['distance'], bins = 100)
     m = .5 * (e[:1] + e[1:])
     V = 4 / 3 * np.pi * (e[1:] ** 3 - e[:1] ** 3)
 
@@ -148,6 +150,7 @@ def gee(files, filename):
 
     ax = plt.subplot(1,1,1)
     ax.plot(m, density)
+    ax.figure.savefig(filename)
 
 def aggregate(pdbids, path, ionname, maxdistance=20, oxynotprotein=True):
     """Aggregates dataframes into one dataframe

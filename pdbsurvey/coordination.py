@@ -117,13 +117,15 @@ def cumin(protein, ions, yaxis='distance', maxdistance=20, oxynotprotein=True,
         cume(en(protein=protein, ion=ion, maxdistance=maxdistance, oxynotprotein=oxynotprotein), yaxis=yaxis, maxdistance=maxdistance, binnumber=binnumber, nummols=nummols, ax=ax)
     return ax
 
-def gee(files, filename):
+def gee(files, filename, nummols=1):
     '''Produces a graph of density as a function of distance
     :Arguments:
         *files*
             list of dataframe file locations
         *filename*
             desired name of output file
+        *nummols*
+            number of proteins/molecules contributing to df
     :Returns:
         *graph*
             graph of g(r)
@@ -147,10 +149,13 @@ def gee(files, filename):
     V = 4 / 3 * np.pi * (e[1:] ** 3 - e[:1] ** 3)
 
     density = h / V
+    density = density/nummols
 
     ax = plt.subplot(1,1,1)
     ax.plot(m, density)
     ax.figure.savefig(filename)
+
+    return ax
 
 def aggregate(pdbids, path, ionname, maxdistance=20, oxynotprotein=True):
     """Aggregates dataframes into one dataframe

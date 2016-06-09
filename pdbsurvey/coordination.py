@@ -76,9 +76,9 @@ def cume(df, yaxis='distance', maxdistance=20, binnumber=20, nummols=1, ax=None)
         ax = fig.add_subplot(1,1,1)
     values, base = np.histogram(df[df[yaxis] < maxdistance][yaxis], bins = binnumber)
 
-    values = values/float(nummols)
+    values = values / float(nummols)
     cumulative = np.cumsum(values)
-    #print df[df['distance'] < maxdistance].sort(columns = 'distance', inplace = False)
+    #print df[df['distance'] < maxdistance].sort(columns='distance', inplace=False)
     ax.plot(base[:-1], cumulative)
     return ax
 
@@ -130,26 +130,26 @@ def gee(files, filename, nummols=1):
         *graph*
             graph of g(r)
     '''
-    dataframe2 = []
+    dataframe = []
     for x in range(len(files)):
         try:
             f = pd.read_csv(files[x], index_col=0)
-            dataframe2.append(f)
+            dataframe.append(f)
         except:
             with open('failures.out', 'a') as f:
                 f.write(files[x] + '\n')
 
     try:
-        dataframe2 = pd.concat(dataframe2, names = ['pdbids'])
+        dataframe = pd.concat(dataframe, names = ['pdbids'])
     except:
-        dataframe2 = dataframe2[0]
+        dataframe = dataframe[0]
 
-    h, e = np.histogram(dataframe2['distance'], bins = 100)
+    h, e = np.histogram(dataframe['distance'], bins = 100)
     m = .5 * (e[:1] + e[1:])
     V = 4 / 3 * np.pi * (e[1:] ** 3 - e[:1] ** 3)
 
     density = h / V
-    density = density/nummols
+    density = density / nummols
 
     ax = plt.subplot(1,1,1)
     ax.plot(m, density)

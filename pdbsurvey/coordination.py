@@ -75,7 +75,7 @@ def cume(df, yaxis='distance', maxdistance=20, binnumber=20, nummols=1, ax=None)
     if ax is None:
         fig = plt.figure(figsize = (4,3))
         ax = fig.add_subplot(1,1,1)
-    values, base = np.histogram(df[df[yaxis] < maxdistance][yaxis], bins = binnumber)
+    values, base = np.histogram(df[df[yaxis] < maxdistance][yaxis], bins=binnumber)
 
     values = values / float(nummols)
     cumulative = np.cumsum(values)
@@ -150,7 +150,7 @@ def gee(files, filename, binnumber=20, nummols=1):
         dataframe = dataframe[0]
 
     h, e = np.histogram(dataframe['distance'], bins=binnumber)
-    m = .5 * (e[:1] + e[1:])
+    m = .5 * (e[:-1] + e[1:])
     V = 4 / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3)
 
     density = h / V

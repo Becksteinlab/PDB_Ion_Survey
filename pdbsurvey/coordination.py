@@ -55,10 +55,11 @@ def cume(df, yaxis='distance', maxdistance=20, binnumber=20, nummols=1, ax=None)
         *maxdistance*
             maximum distance of interest from the ion; default = 20
         *binnumber*
-            number of desired bins for cumulative histogram; default = 20        *ax*
+            number of desired bins for cumulative histogram; default = 20
+        *ax*
             axis to plot on; default = None
         *nummols*
-            number of proteins/molecules contributing to df
+            number of proteins/molecules contributing to df; default = 1
 
     :Prints:
         *cumulative histogram*
@@ -98,6 +99,8 @@ def cumin(protein, ions, yaxis='distance', maxdistance=20, oxynotprotein=True,
             boolean value of whether to include oxygens not in the protein; default = False
         *binnumber*
             number of desired bins for cumulative histogram; default = 20
+        *nummols*
+            number of proteins/molecules contributing to df; default = 1
         *ax*
             axis to plot on; default = None
 
@@ -117,15 +120,17 @@ def cumin(protein, ions, yaxis='distance', maxdistance=20, oxynotprotein=True,
         cume(en(protein=protein, ion=ion, maxdistance=maxdistance, oxynotprotein=oxynotprotein), yaxis=yaxis, maxdistance=maxdistance, binnumber=binnumber, nummols=nummols, ax=ax)
     return ax
 
-def gee(files, filename, nummols=1):
+def gee(files, filename, binnumber=20, nummols=1):
     '''Produces a graph of density as a function of distance
     :Arguments:
         *files*
             list of dataframe file locations
         *filename*
             desired name of output file
+        *binnumber*
+            number of desired bins for cumulative histogram; default = 20
         *nummols*
-            number of proteins/molecules contributing to df
+            number of proteins/molecules contributing to df; default = 1
     :Returns:
         *graph*
             graph of g(r)
@@ -140,13 +145,13 @@ def gee(files, filename, nummols=1):
                 f.write(files[x] + '\n')
 
     try:
-        dataframe = pd.concat(dataframe, names = ['pdbids'])
+        dataframe = pd.concat(dataframe, names=['pdbids'])
     except:
         dataframe = dataframe[0]
 
-    h, e = np.histogram(dataframe['distance'], bins = 100)
+    h, e = np.histogram(dataframe['distance'], bins=binnumber)
     m = .5 * (e[:1] + e[1:])
-    V = 4 / 3 * np.pi * (e[1:] ** 3 - e[:1] ** 3)
+    V = 4 / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3)
 
     density = h / V
     density = density / nummols

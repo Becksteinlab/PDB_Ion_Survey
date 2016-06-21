@@ -75,12 +75,12 @@ def cume(df, yaxis='distance', maxdistance=20, binnumber=20, nummols=1, ax=None)
     if ax is None:
         fig = plt.figure(figsize = (4,3))
         ax = fig.add_subplot(1,1,1)
-    values, base = np.histogram(df[df[yaxis] < maxdistance][yaxis], bins=binnumber)
+    h, e = np.histogram(df[df[yaxis] < maxdistance][yaxis], bins=binnumber)
 
-    values = values / float(nummols)
-    cumulative = np.cumsum(values)
-    #print df[df['distance'] < maxdistance].sort(columns='distance', inplace=False)
-    ax.plot(base[:-1], cumulative)
+    h = h / float(nummols)
+    cumulative = np.cumsum(h)
+    m = .5 * (e[:-1] + e[1:])
+    ax.plot(m, cumulative)
     return ax
 
 def cumin(protein, ions, yaxis='distance', maxdistance=20, oxynotprotein=True,

@@ -114,8 +114,9 @@ def cumin(protein, ions, yaxis='distance', maxdistance=20, oxynotprotein=True,
         *ax*
             axis used for plotting
     """
-    fig = plt.figure(figsize = (4,3))
-    ax = fig.add_subplot(1,1,1)
+    if ax is None:
+        fig = plt.figure(figsize = (4,3))
+        ax = fig.add_subplot(1,1,1)
     for ion in ions:
         cume(en(protein=protein, ion=ion, maxdistance=maxdistance, oxynotprotein=oxynotprotein), yaxis=yaxis, maxdistance=maxdistance, binnumber=binnumber, nummols=nummols, ax=ax)
     return ax
@@ -135,19 +136,14 @@ def gee(files, filename, binnumber=20, nummols=1):
         *graph*
             graph of g(r)
     '''
-    dataframe = []
+    dataframe = pd.DataFrame()
     for x in range(len(files)):
         try:
             f = pd.read_csv(files[x], index_col=0)
-            dataframe.append(f)
+            dataframe = pd.concat([f], names=['pdbids'])
         except:
             with open('failures.out', 'a') as f:
                 f.write(files[x] + '\n')
-
-    try:
-        dataframe = pd.concat(dataframe, names=['pdbids'])
-    except:
-        dataframe = dataframe[0]
 
     h, e = np.histogram(dataframe['distance'], bins=binnumber)
     m = .5 * (e[:-1] + e[1:])

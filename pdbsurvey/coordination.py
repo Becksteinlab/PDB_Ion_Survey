@@ -71,7 +71,7 @@ def cume(files, maxdistance=20, binnumber=20, nummols=None):
             x += 1
         except:
             with open('failures.out', 'a') as f:
-                f.write(files[x] + '\n')
+                f.write(fil + '\n')
 
     if nummols is None:
         nummols = x
@@ -109,7 +109,7 @@ def gee(files, filename, binnumber=20, nummols=None):
             x += 1
         except:
             with open('failures.out', 'a') as f:
-                f.write(files[x] + '\n')
+                f.write(fil + '\n')
 
     if nummols is None:
         nummols = x

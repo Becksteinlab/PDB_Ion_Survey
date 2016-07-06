@@ -82,13 +82,11 @@ def cume(files, maxdistance=20, binnumber=20, nummols=None):
     m = .5 * (e[:-1] + e[1:])
     return m, cumulative
 
-def gee(files, filename, binnumber=20, nummols=None):
+def gee(files, binnumber=20, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:
         *files*
             list of locations of files containing distance dataframes
-        *filename*
-            desired name of output file
         *binnumber*
             number of desired bins for cumulative histogram; default = 20
         *nummols*

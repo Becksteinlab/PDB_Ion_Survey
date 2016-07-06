@@ -34,11 +34,8 @@ def en(protein, ion, maxdistance=20, oxynotprotein=True):
     box = u.dimensions
     distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :], 
                                                oxy.positions, box = box)
-    oxy_rnames = [atom.resname for atom in oxy]
-    oxy_rids = [atom.resid for atom in oxy]
-    oxy_names = [atom.name for atom in oxy]    
-    df = pd.DataFrame({'resid': oxy_rids, 'resname': oxy_rnames, 
-                     'atomname': oxy_names, 'distance': distances[0]},
+    df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.rnames, 
+                     'atomname': oxy.names, 'distance': distances[0]},
             columns=columns)
     df = df[df['distance'] < maxdistance]
     df = df.reset_index()[columns]

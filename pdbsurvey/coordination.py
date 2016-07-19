@@ -34,7 +34,7 @@ def en(protein, ion, maxdistance=20, oxynotprotein=True):
     box = u.dimensions
     distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :], 
                                                oxy.positions, box = box)
-    df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.rnames, 
+    df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames, 
                      'atomname': oxy.names, 'distance': distances[0]},
             columns=columns)
     df = df[df['distance'] < maxdistance]
@@ -59,6 +59,7 @@ def cume(files, maxdistance=20, binnumber=20, nummols=None):
         *cumulative*
             cumulative histogram values
     """
+    dataframe = pd.DataFrame()
     x = 0
 
     for fil in files:

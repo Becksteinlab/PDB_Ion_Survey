@@ -41,7 +41,7 @@ def en(protein, ion, maxdistance=20, oxynotprotein=True):
     df = df.reset_index()[columns]
     return df
 
-def cume(files, maxdistance=20, binnumber=20, nummols=None):
+def cume(files, maxdistance=20, binnumber=100, nummols=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
     :Arguments:
         *files*
@@ -49,7 +49,7 @@ def cume(files, maxdistance=20, binnumber=20, nummols=None):
         *maxdistance*
             maximum distance of interest from the ion; default = 20
         *binnumber*
-            number of desired bins for cumulative histogram; default = 20
+            number of desired bins for cumulative histogram; default = 100
         *nummols*
             number of ions/molecules serving as centers contributing to df; default = None
 
@@ -80,13 +80,13 @@ def cume(files, maxdistance=20, binnumber=20, nummols=None):
     m = .5 * (e[:-1] + e[1:])
     return m, cumulative
 
-def gee(files, binnumber=20, nummols=None):
+def gee(files, binnumber=100, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:
         *files*
             list of locations of files containing distance dataframes
         *binnumber*
-            number of desired bins for cumulative histogram; default = 20
+            number of desired bins for cumulative histogram; default = 100
         *nummols*
             number of ions/molecules serving as centers contributing to df; default = None
     :Returns:
@@ -112,8 +112,8 @@ def gee(files, binnumber=20, nummols=None):
 
     h, e = np.histogram(dataframe['distance'], bins=binnumber)
     m = .5 * (e[:-1] + e[1:])
-    V = 4 / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3)
+    V = 4. / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3)
 
-    density = h / V / nummols
+    density = h / V / float(nummols)
 
     return m, density

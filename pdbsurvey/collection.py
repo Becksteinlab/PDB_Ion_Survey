@@ -211,6 +211,10 @@ def get_pdb_file(pdb_id, path, compression = False):
     -------------------------
     Based off of a function made by William Gilpin
     '''
+    # if file exists, don't download again 
+    if os.path.isfile(os.path.join(path, pdb_id) + '.pdb'):
+        return
+
     # get logger instance
     log = _make_logger(os.path.join(path, 'pdb_ions_survey.log'))
 
@@ -220,10 +224,6 @@ def get_pdb_file(pdb_id, path, compression = False):
     else:
         fullurl += '&compression=NO'
     fullurl += '&structureId=' + pdb_id
-
-    # if file exists, don't download again 
-    if os.path.isfile(os.path.join(path, pdb_id) + '.pdb'):
-        return
 
     # creates a string containing pdb file information
     req = urllib2.Request(fullurl)

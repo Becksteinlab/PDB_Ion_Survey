@@ -31,11 +31,11 @@ def en(protein, ion, maxdistance=20, oxynotprotein=True):
     else:
         oxy = protein.select_atoms('protein and name O*')
     box = protein.dimensions
-    distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :], 
-                                               oxy.positions, box = box)
+    distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+            oxy.positions, box = box)
     df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames, 
                      'atomname': oxy.names, 'distance': distances[0]},
-            columns=columns)
+                     columns=columns)
     df = df[df['distance'] < maxdistance]
     df = df.reset_index()[columns]
     return df

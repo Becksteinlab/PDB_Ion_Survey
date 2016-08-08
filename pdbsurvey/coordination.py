@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 import os.path
 
-def en(protein, ion, maxdistance=20, oxynotprotein=True):
+def en(protein, ion, maxdistance=20, oxynotprotein=True, periodic=True):
     """Gives the distances of oxygen atoms from an ion.
     :Arguments:
         *protein*
@@ -30,10 +30,14 @@ def en(protein, ion, maxdistance=20, oxynotprotein=True):
         oxy = protein.select_atoms('name O*')
     else:
         oxy = protein.select_atoms('protein and name O*')
-    box = protein.dimensions
-    distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
-            oxy.positions, box = box)
-    df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames, 
+    if periodic and (protein.dimensions[:3] > 2).all():
+        box = protein.dimensions 
+        distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+                                                     oxy.positions, box = box)
+    else:
+        distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+                                                     oxy.positions)
+    df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames,
                      'atomname': oxy.names, 'distance': distances[0]},
                      columns=columns)
     df = df[df['distance'] < maxdistance]

@@ -26,12 +26,11 @@ def en(protein, ion, maxdistance=20, oxynotprotein=True):
             for each oxygen in the protein file
     """
     columns = ['resid', 'resname', 'atomname', 'distance']
-    u = protein
     if oxynotprotein:
-        oxy = u.select_atoms('name O*')
+        oxy = protein.select_atoms('name O*')
     else:
-        oxy = u.select_atoms('protein and name O*')
-    box = u.dimensions
+        oxy = protein.select_atoms('protein and name O*')
+    box = protein.dimensions
     distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :], 
                                                oxy.positions, box = box)
     df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames, 

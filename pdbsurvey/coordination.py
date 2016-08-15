@@ -98,8 +98,6 @@ def gee(dataframes, binnumber=100, nummols=None):
         *density*
             density histogram values
     '''
-    import pandas as pd
-    import numpy as np
     dataframe = pd.concat(dataframes)
 
     if nummols is None:

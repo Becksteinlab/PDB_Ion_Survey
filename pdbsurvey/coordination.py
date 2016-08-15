@@ -54,7 +54,7 @@ def cume(files, maxdistance=20, binnumber=100, nummols=None):
         *binnumber*
             number of desired bins for cumulative histogram; default = 100
         *nummols*
-            number of ions/molecules serving as centers contributing to df; default = None
+            number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
 
     :Returns:
         *m*
@@ -83,35 +83,27 @@ def cume(files, maxdistance=20, binnumber=100, nummols=None):
     m = .5 * (e[:-1] + e[1:])
     return m, cumulative
 
-def gee(files, binnumber=100, nummols=None):
+def gee(dataframes, binnumber=100, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:
-        *files*
-            list of locations of files containing distance dataframes
+        *dataframes*
+            list of distance dataframes
         *binnumber*
             number of desired bins for cumulative histogram; default = 100
         *nummols*
-            number of ions/molecules serving as centers contributing to df; default = None
+            number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
     :Returns:
         *m*
             midpoints of bins
         *density*
             density histogram values
     '''
-    dataframe = pd.DataFrame()
-    x = 0
-
-    for fil in files:
-        try:
-            f = pd.read_csv(fil, index_col=0)
-            dataframe = pd.concat([dataframe, f])
-            x += 1
-        except:
-            with open('failures.out', 'a') as f:
-                f.write(fil + '\n')
+    import pandas as pd
+    import numpy as np
+    dataframe = pd.concat(dataframes)
 
     if nummols is None:
-        nummols = x
+        nummols = len(dataframes)
 
     h, e = np.histogram(dataframe['distance'], bins=binnumber)
     m = .5 * (e[:-1] + e[1:])

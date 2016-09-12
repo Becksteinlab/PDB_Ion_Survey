@@ -168,6 +168,7 @@ def get_proteins(ionname, containsProtein = True, containsDna = False, containsR
     idsetB = set(idlistB)
     ids = idset.intersection(idsetB)
     ids = list(ids)
+    ids = filter(None, ids)
     return ids
 
 

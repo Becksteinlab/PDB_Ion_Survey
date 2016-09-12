@@ -27,9 +27,9 @@ def en(protein, ion, maxdistance=20, oxynotprotein=True, periodic=True):
     """
     columns = ['resid', 'resname', 'atomname', 'distance']
     if oxynotprotein:
-        oxy = protein.select_atoms('name O*')
+        oxy = protein.select_atoms('name O* and not name OS')
     else:
-        oxy = protein.select_atoms('protein and name O*')
+        oxy = protein.select_atoms('protein and name O* and not name OS')
     if periodic and (protein.dimensions[:3] > 2).all():
         box = protein.dimensions 
         distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],

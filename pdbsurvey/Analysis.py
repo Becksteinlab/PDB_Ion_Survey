@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import peakutils
-from __future__ import division
 
 def make_sims(path):
     sims = mds.Tree('sims')
@@ -45,8 +44,7 @@ def sim_labeling(sim):
             except ValueError:
                 continue
     if found:
-        sim.categories['resolution'] = value
-    
+        sim.categories['resolution'] = value    
     else:
         sim.categories['resolution'] = 'N/A'
     return value

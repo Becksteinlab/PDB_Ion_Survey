@@ -12,7 +12,6 @@ def make_sims(path):
     pdbfiles = pdbs.glob('*.pdb')
     return pdbfiles
 
-err_universe = []
 def define_universe(pdbfile):
     s = mds.Sim(sims[os.path.splitext(pdbfile.name)[0] + '/'])
     with open(s[pdbfile.name].abspath, 'w') as f:
@@ -25,13 +24,14 @@ def define_universe(pdbfile):
 
 def sim_labeling(sim, ionname=None):
     bundle.tags.add('pdb_ion_survey', 'pdbsurvey')
+
     if ionname:
         bundle.tags.add(ionname[0].upper() + ionname[1].lower())
-
     f = open(sim.glob('*.pdb')[0].abspath, "r")
     searchlines = f.readlines()
     f.close()
     found = False
+
     for i, line in enumerate(searchlines):
         if ("REMARK" in line) and ("RESOLUTION." in line):
             try:
@@ -45,16 +45,17 @@ def sim_labeling(sim, ionname=None):
                 continue
             except ValueError:
                 continue
+
     if found:
         sim.categories['resolution'] = value    
     else:
         sim.categories['resolution'] = 'N/A'
-    return value
 
     if sim.universe.select_atoms('resname HOH'):
         value = True
     else:
         value = False
+
     sim.categories['has_water'] = value
 
 def closest_oxy_distance(bundle, ions, reses, cume=True):
@@ -123,12 +124,12 @@ def closest_oxy_distance(bundle, ions, reses, cume=True):
             except:
                 continue
 
-def get_peaks(bundle, mindist=1):
+def get_peaks(bundle, ionname, mindist=1):
     y = bundle
     yframes = []
     for s in y:
-        for iondata in s['coordination/NA/'].data:
-            yframes.append(s['coordination/NA/'].data[iondata])
+        for iondata in s['coordination/' + ionname.upper() + '/'].data:
+            yframes.append(s['coordination/' + ionname.upper() + '/'].data[iondata])
     ymids, ydensity = coordination.gee(yframes, binnumber=200)
     x = int(round(mindist / (ymids[1] - ymids[0])))
     ypeaks = peakutils.indexes(ydensity, thres=.1, min_dist=x)

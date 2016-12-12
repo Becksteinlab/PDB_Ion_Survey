@@ -65,7 +65,7 @@ def sim_labeling(bundle, ionname=None):
     bundle.tags.add('pdb_ion_survey', 'pdbsurvey')
 
     if ionname:
-        bundle.tags.add(ionname[0].upper() + ionname[1].lower())
+        bundle.tags.add(ionname)
     
     for sim in bundle:
         with open(sim.glob('*.pdb')[0].abspath, "r") as f:

@@ -18,7 +18,7 @@ import peakutils
 from . import coordination
 
 def make_sims(path):
-    """
+    """Makes a Tree of sims in a path.
     :Arguments:
         *path*
             path to sims
@@ -35,7 +35,7 @@ def make_sims(path):
     return sims, pdbfiles
 
 def define_universe(sims, pdbfile):
-    """
+    """Makes universes in sims.
     :Arguments:
         *sims*
             Tree of sims
@@ -52,7 +52,7 @@ def define_universe(sims, pdbfile):
             f.write(pdbfile.name + '\n')
 
 def sim_labeling(bundle, ionname=None):
-    """
+    """Adds tags and categories to sims.
     :Arguments:
         *bundle*
             Bundle object
@@ -97,7 +97,6 @@ def sim_labeling(bundle, ionname=None):
 
 def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, binsize = .2):
     """Finds distances of closest oxygens.
-
     :Arguments:
         *bundle*
             bundle of sims
@@ -153,7 +152,7 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, bi
     return m, frequencies, exceptions
 
 def graph_closest_oxy_distances(m, frequencies, ax=None, cume=True, axlim=(1, 6)):
-    """
+    """Creates a neat plot of closest oxygen distance data.
     :Arguments:
         *m*
             midpoints of bins
@@ -188,7 +187,7 @@ def graph_closest_oxy_distances(m, frequencies, ax=None, cume=True, axlim=(1, 6)
     return ax
 
 def get_peaks(bundle, ionname, mindist=1):
-    """
+    """Calculates location of peaks and troughs in g(r)s.
     :Arguments:
         *bundle*
             bundle of sims

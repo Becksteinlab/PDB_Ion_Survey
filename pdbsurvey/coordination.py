@@ -1,12 +1,20 @@
+# PDB survey 
+# Copyright (c) 2016 Kacey Clark
+# Published under the GPL v3
+# https://github.com/Becksteinlab/PDB_Ion_Survey/
+
 """
 Functions for analyzing ion coordination in PDB structures
 """
+
+from __future__ import absolute_import
+
+import os.path
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
-import os.path
 
 def en(protein, ion, maxdistance=20, oxynotprotein=True, periodic=True):
     """Gives the distances of oxygen atoms from an ion.

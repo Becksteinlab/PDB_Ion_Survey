@@ -1,8 +1,11 @@
 # PDB survey 
 # Copyright (c) 2016 Kacey Clark
 # Published under the GPL v3
-#
 # https://github.com/Becksteinlab/PDB_Ion_Survey/
+
+"""
+Functions for creating sims and analyzing coordination data.
+"""
 
 from __future__ import absolute_import
 

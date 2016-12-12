@@ -1,11 +1,19 @@
+# PDB survey 
+# Copyright (c) 2016 Kacey Clark
+# Published under the GPL v3
+# https://github.com/Becksteinlab/PDB_Ion_Survey/
+
 """
 Functions for querying, downloading, and analyzing ion coordination of PDB structures
 """
 
-import logging
-import urllib2
+from __future__ import absolute_import
+
 import os.path
 import sys
+
+import logging
+import urllib2
 from collections import OrderedDict
 from cStringIO import StringIO
 from xml.sax.saxutils import XMLGenerator

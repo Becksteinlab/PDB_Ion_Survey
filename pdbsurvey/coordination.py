@@ -1,4 +1,4 @@
-# PDB survey 
+# PDB Ion Survey 
 # Copyright (c) 2016 Kacey Clark
 # Published under the GPL v3
 # https://github.com/Becksteinlab/PDB_Ion_Survey/

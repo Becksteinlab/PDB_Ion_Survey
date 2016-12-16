@@ -8,7 +8,6 @@ Functions for creating sims and analyzing coordination data.
 """
 
 from __future__ import absolute_import
-
 import os
 
 import mdsynthesis as mds

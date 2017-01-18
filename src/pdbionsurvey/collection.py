@@ -214,7 +214,7 @@ def get_pdb_file(pdb_id, path, compression = False):
             path to the desired location of the file
         *compression
             retrieve a compressed (gz) version of the file if True; default = False
-    :Returns:
+    :Writes:
         *pdb_id.pdb*
             pdb file corresponding to pdb_id
     -------------------------

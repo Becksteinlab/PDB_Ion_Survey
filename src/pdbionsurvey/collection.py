@@ -111,7 +111,7 @@ def unparse(input_dict, output = None, encoding = 'utf-8', full_document = True,
         return value
 
 
-def get_proteins(ionname, containsProtein = True, containsDna = False, containsRna = False, containsHybrid = False):
+def get_pdb_ids(ionname, containsProtein = True, containsDna = False, containsRna = False, containsHybrid = False):
     """Searches PDB for files with a specified bound ion.
     :Arguments:
         *ionname*

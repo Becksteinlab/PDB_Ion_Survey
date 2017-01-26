@@ -206,7 +206,7 @@ def _make_logger(filename):
 
 
 def get_pdb_file(pdb_id, path, compression = False):
-    '''Get the full PDB file associated with a PDB_ID
+    '''Get the full .pdb file associated with a PDB_ID
     :Arguments:
         *pdb_id*
             four character string giving a pdb entry of interest

@@ -17,7 +17,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import peakutils
-import coordination
 
 def make_sims(path):
     """Makes a Tree of sims in a path.

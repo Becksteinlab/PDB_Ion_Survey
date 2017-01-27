@@ -24,7 +24,7 @@ from xml.sax.xmlreader import AttributesImpl
 error_message = 'RCSB web servers'
 
 
-def _emit(key, value, content_handler, attr_prefix = '@', cdata_key = '#text', depth = 0, preprocessor = None, pretty = False, newl = '\n', indent = '\t', full_document=True):
+def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text', depth=0, preprocessor=None, pretty=False, newl='\n', indent='\t', full_document=True):
     '''I do not know what this does.
     -------------------------
     Credit to: Martin Blech
@@ -74,7 +74,7 @@ def _emit(key, value, content_handler, attr_prefix = '@', cdata_key = '#text', d
             content_handler.ignorableWhitespace(newl)
 
 
-def unparse(input_dict, output = None, encoding = 'utf-8', full_document = True,
+def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
             **kwargs):
     """Emit an XML document for the given `input_dict`.
     The resulting XML document is returned as a string, but if `output` (a
@@ -111,16 +111,16 @@ def unparse(input_dict, output = None, encoding = 'utf-8', full_document = True,
         return value
 
 
-def get_pdb_ids(ionname, containsProtein = True, containsDna = False, containsRna = False, containsHybrid = False):
+def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=False, containsHybrid=False):
     """Searches PDB for files with a specified bound ion.
     :Arguments:
         *ionname*
             name of desired ion
         *containsProtein*
             boolean value of whether to include protein molecules in the search; default = True
-        *containsDna*
+        *containsDNA*
             boolean value of whether to include DNA molecules in the search; default = False
-        *containsRna*
+        *containsRNA*
             boolean value of whether to include RNA molecules in the search; default = False
         *containsHybrid*
             boolean value of whether to include DNA/RNA hybrid molecules in the search; default = False
@@ -150,11 +150,11 @@ def get_pdb_ids(ionname, containsProtein = True, containsDna = False, containsRn
         query_paramsB['containsProtein'] = 'Y'
     else:
         query_paramsB['containsProtein'] = 'N'
-    if containsDna:
+    if containsDNA:
         query_paramsB['containsDna'] = 'Y'
     else:
         query_paramsB['containsDna'] = 'N'
-    if containsRna:
+    if containsRNA:
         query_paramsB['containsRna'] = 'Y'
     else:
         query_paramsB['containsRna'] = 'N'
@@ -165,7 +165,7 @@ def get_pdb_ids(ionname, containsProtein = True, containsDna = False, containsRn
     scan_paramsB = dict()
     scan_paramsB['orgPdbQuery'] = query_paramsB
     urlB = 'http://www.rcsb.org/pdb/rest/search'
-    queryTextB = unparse(scan_paramsB, pretty = True)
+    queryTextB = unparse(scan_paramsB, pretty=True)
     queryTextB = queryTextB.encode()
     reqB = urllib2.Request(urlB, data=queryTextB)
     fB = urllib2.urlopen(reqB)
@@ -205,7 +205,7 @@ def _make_logger(filename):
     return log
 
 
-def get_pdb_file(pdb_id, path, compression = False):
+def get_pdb_file(pdb_id, path, compression=False):
     '''Get the full .pdb file associated with a PDB_ID
     :Arguments:
         *pdb_id*

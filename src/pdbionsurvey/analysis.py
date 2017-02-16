@@ -10,6 +10,7 @@ Functions for creating sims and analyzing coordination data.
 from __future__ import absolute_import
 
 import os
+import glob
 
 import mdsynthesis as mds
 import MDAnalysis as mda
@@ -18,11 +19,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import peakutils
 
-def make_sims(path):
+def make_sims(path, pdbfiles):
     """Makes a Tree of sims in a path.
     :Arguments:
         *path*
             path to sims
+        *pdbfiles*
+            list of paths to .pdb files
 
     :Returns:
         *sims*
@@ -30,41 +33,48 @@ def make_sims(path):
         *pdbfiles*
             View of .pdb files
     """
-    sims = mds.Tree('sims')
-    pdbs = mds.Tree(path)
-    pdbfiles = pdbs.glob('*.pdb')
-    return sims, pdbfiles
+    sims = mds.Bundle()
+    for fil in pdbfiles:
+        mds.Sim(path.abspath+fil.name[:4])
+        sims.add(path.abspath+fil.name[:4])
+        with open(sims[fil.name[:4]][0].abspath+fil.name, 'w') as f:
+            f.write(fil.read())
+            f.close()
+    return sims
 
-def define_universe(sims, pdbfile):
+def define_universe(sims, pdbfiles):
     """Makes universes in sims.
     :Arguments:
         *sims*
             Tree of sims
-        *pdbfile*
-            .pdb file Leaf object
+        *pdbfiles*
+            list of paths to .pdb files
     """
-    s = mds.Sim(sims[os.path.splitext(pdbfile.name)[0] + '/'])
-    with open(s[pdbfile.name].abspath, 'w') as f:
-        f.write(pdbfile.read())
-    try:
-        s.universe = mda.Universe(s[pdbfile.name].abspath)
-    except:
-        with open('failures.out', 'a') as f:
-            f.write(pdbfile.name + '\n')
+    for fil in pdbfiles:
+        try:
+            sims[fil.name[:4]][0].universe = mda.Universe(fil.abspath)
+        except:
+            with open('failures.out', 'a') as f:
+                f.write(fil.name + '\n')
 
-def sim_labeling(bundle, ionname=None):
+def sim_labeling(bundle, ionname=None, project_tags=['pdbionsurvey', 'pdbsurvey']):
     """Adds tags and categories to sims.
     :Arguments:
         *bundle*
             Bundle object
         *ionname*
             name of ion for tagging; default = None
+        *project_tags*
+            list of tags to attach to sims; default = ['pdbionsurvey', 'pdbsurvey']
     """
-    bundle.tags.add('pdb_ion_survey', 'pdbsurvey')
+    for tag in project_tags:
+        bundle.tags.add(tag)
 
-    if ionname:
+    if ionname: 
         bundle.tags.add(ionname)
-    
+        bundle.tags.add(ionname.upper())
+        bundle.tags.add(ionname.lower())
+
     for sim in bundle:
         with open(sim.glob('*.pdb')[0].abspath, "r") as f:
            searchlines = f.readlines()
@@ -131,8 +141,9 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, bi
             frames = []
             for d in z:
                 try:
-                    for iondata in d['coordination/' + ion.upper() + '/'].data:
-                        frames.append(d['coordination/' + ion.upper() + '/'].data[iondata].sort('distance')[0:num_oxy].reset_index()['distance'])
+                    for d in glob.glob(sims[0]['coordination/LI/'].abspath+'*.csv'):
+                        f = pd.read_csv(d)
+                        frames.append(f.sort('distance')[0:num_oxy].reset_index()['distance'])
                 except KeyError:
                     exceptions['KeyError'].append({{res: {ion: d.name}}})
             oxy = []

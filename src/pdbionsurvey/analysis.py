@@ -125,22 +125,24 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, bi
             pandas.DataFrame` containing distances for the first num_oxy oxygen atoms from the ions in ions
     """
     c = bundle
+    dfs = []
     for res in resolutions:
         if not cume:
             c = c[[r > (res - .5) for r in c.categories['resolution']]]
-            c = c[[r <= res for r in c.categories['resolution']]]
+        c = c[[r <= res for r in c.categories['resolution']]]
 
-            for ion in ions:
-                z = c[c.tags[ion]]
-                oxy = []
-                for sim in z:
-                    for csv in sim.glob('coordination/LI/*.csv'):
-                        df = pd.read_csv(csv.abspath)
-                    df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
-                    index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
-                    oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
-                    oxys = pd.concat(oxy)
-    return oxys
+        for ion in ions:
+            z = c[c.tags[ion]]
+            oxy = []
+            for sim in z:
+                for csv in sim.glob('coordination/LI/*.csv'):
+                    df = pd.read_csv(csv.abspath)
+                df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
+                index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
+                oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
+            oxys = pd.concat(oxy)
+        dfs.append(oxys)
+    return dfs
 
 def graph_closest_oxy_distances(m, frequencies, ax=None, cume=True, axlim=(1, 6)):
     """Creates a neat plot of closest oxygen distance data.

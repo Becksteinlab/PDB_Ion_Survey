@@ -122,46 +122,25 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, bi
         *binsize*
             bin width of distances from ion; default = .2
     :Returns:
-        *m*
-            midpoints of bins
-        *frequencies*
-            list of closest oxygen histogram values
-        *exceptions*
-            dictionary of error-causing sims
+        *oxys*
+            pandas.DataFrame` containing distances for the first num_oxy oxygen atoms from the ions in ions
     """
-    c = bundle
-    exceptions = {}
-    frequencies = {}
     for res in resolutions:
         if not cume:
             c = c[[r > (res - .5) for r in c.categories['resolution']]]
-        c = c[[r <= res for r in c.categories['resolution']]]
-        for ion in ions:
-            z = c[c.tags[ion]]
-            frames = []
-            for d in z:
-                try:
-                    for d in glob.glob(sims[0]['coordination/LI/'].abspath+'*.csv'):
-                        f = pd.read_csv(d)
-                        frames.append(f.sort('distance')[0:num_oxy].reset_index()['distance'])
-                except KeyError:
-                    exceptions['KeyError'].append({{res: {ion: d.name}}})
-            oxy = []
+            c = c[[r <= res for r in c.categories['resolution']]]
 
-            for i in range(len(frames)):
-                for j in range(num_oxy):
-                    oxy[j].append(frames[i][0])
-
-            bins = np.arange(0, 8, binsize)
-
-            frequency = []
-            for i in range(num_oxy):
-                h, e = np.histogram(oxy[0], bins=bins)
-                frequency[i].append(h)
-            m = .5 * (e[:-1] + e[1:])
-                                                   
-            frequency[res][ion] = frequency
-    return m, frequencies, exceptions
+            for ion in ions:
+                z = c[c.tags[ion]]
+                oxy = []
+                for sim in z:
+                    for csv in sim.glob('coordination/LI/*.csv')
+                        df = pd.read_csv(csv.abspath)
+                    df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
+                    index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
+                    oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
+                    oxys = pd.concat(oxy)
+    return oxys
 
 def graph_closest_oxy_distances(m, frequencies, ax=None, cume=True, axlim=(1, 6)):
     """Creates a neat plot of closest oxygen distance data.

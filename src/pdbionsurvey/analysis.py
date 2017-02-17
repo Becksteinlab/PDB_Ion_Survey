@@ -134,7 +134,7 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, bi
                 z = c[c.tags[ion]]
                 oxy = []
                 for sim in z:
-                    for csv in sim.glob('coordination/LI/*.csv')
+                    for csv in sim.glob('coordination/LI/*.csv'):
                         df = pd.read_csv(csv.abspath)
                     df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
                     index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))

@@ -10,7 +10,6 @@ Functions for creating sims and analyzing coordination data.
 from __future__ import absolute_import
 
 import os
-import glob
 
 import mdsynthesis as mds
 import MDAnalysis as mda
@@ -125,6 +124,7 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, bi
         *oxys*
             pandas.DataFrame` containing distances for the first num_oxy oxygen atoms from the ions in ions
     """
+    c = bundle
     for res in resolutions:
         if not cume:
             c = c[[r > (res - .5) for r in c.categories['resolution']]]

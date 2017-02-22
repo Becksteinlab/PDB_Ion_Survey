@@ -18,6 +18,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import peakutils
 
+from . import coordination
+
 def make_sims(path, pdbfiles):
     """Makes a Tree of sims in a path.
     :Arguments:
@@ -105,7 +107,7 @@ def sim_labeling(bundle, ionname=None, project_tags=['pdbionsurvey', 'pdbsurvey'
 
         sim.categories['has_water'] = value
 
-def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, binsize = .2):
+def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6):
     """Finds distances of closest oxygens.
     :Arguments:
         *bundle*
@@ -118,10 +120,8 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, bi
             boolean value of whether to sort by resolution cumulatively; default = True
         *num_oxy*
             number of close oxygens of interest; default = 6
-        *binsize*
-            bin width of distances from ion; default = .2
     :Returns:
-        *oxys*
+        *dfs*
             pandas.DataFrame` containing distances for the first num_oxy oxygen atoms from the ions in ions
     """
     c = bundle
@@ -142,21 +142,24 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6, bi
                 oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
             oxys = pd.concat(oxy)
         dfs.append(oxys)
+        dfs = dfs[0]
     return dfs
 
-def graph_closest_oxy_distances(m, frequencies, ax=None, cume=True, axlim=(1, 6)):
+def graph_closest_oxy_distances(dfs, ax=None, cume=True, axlim=(1, 6), binsize = .2, save=False):
     """Creates a neat plot of closest oxygen distance data.
     :Arguments:
-        *m*
-            midpoints of bins
-        *frequencies*
-            list of closest oxygen histogram values
+        *dfs*
+            pandas.DataFrame` containing distances for the first num_oxy oxygen atoms from the ions in ions
         *ax*
             axes object; default = None
         *cume*
             boolean value of whether to sort by resolution cumulatively; default = True
         *axlim*
             minimum and maximimum distances from ion of interest; default = (1, 6)
+         *binsize*
+            bin width of distances from ion; default = .2
+        *save*
+            boolean value of whether to save graph; default = False
     :Returns:
         *ax*
             axes object
@@ -166,16 +169,20 @@ def graph_closest_oxy_distances(m, frequencies, ax=None, cume=True, axlim=(1, 6)
         ax = fig.add_subplot(1,1,1)
     ax.set_xlim(axlim)
 
-    for i in range(num_oxy):
-        ax.plot(m, frequency[i], label='oxy #' + i, lw=2)
+    bins = np.arange(0, 8, binsize)
+
+    for i in range(len(dfs.columns)):
+        h, e = np.histogram(dfs[i+1], bins=bins)
+        m = .5 * (e[:-1] + e[1:])
+        ax.plot(m, h, label='oxy #' + str(i+1), lw=2)
 
     ax.set_xlabel('Distance ($\AA$)')
     ax.set_ylabel('Frequency')
     ax.legend(fontsize='medium')
 
-    if cume:
+    if save and cume:
         ax.figure.savefig(ion + "+ Distance of Oxygens Histogram (res from " + (res - .5) + " to " + res + ").pdf")
-    else:
+    elif save:
         ax.figure.savefig(ion + "+ Distance of Oxygens Histogram (res to " + res + ").pdf")
     return ax
 
@@ -199,9 +206,11 @@ def get_peaks(bundle, ionname, mindist=1):
             indexes of minimum locations
     """
     frames = []
-    for s in bundle:
-        for iondata in s['coordination/' + ionname.upper() + '/'].data:
-            frames.append(s['coordination/' + ionname.upper() + '/'].data[iondata])
+    for sim in bundle:
+        for csv in sim.glob('coordination/LI/*.csv'):
+            df = pd.read_csv(csv.abspath)
+            frames.append(df)
+
     m, density = coordination.gee(frames, binnumber=200)
     x = int(round(mindist / (m[1] - m[0])))
     peaks = peakutils.indexes(density, thres=.1, min_dist=x)

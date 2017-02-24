@@ -122,7 +122,7 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6):
             number of close oxygens of interest; default = 6
     :Returns:
         *dfs*
-            pandas.DataFrame` containing distances for the first num_oxy oxygen atoms from the ions in ions
+            list of DataFrames containing distances for the first num_oxy oxygen atoms from the ions in ions
     """
     c = bundle
     dfs = []
@@ -135,14 +135,13 @@ def closest_oxy_distance(bundle, ions, resolutions, cume = True, num_oxy = 6):
             z = c[c.tags[ion]]
             oxy = []
             for sim in z:
-                for csv in sim.glob('coordination/LI/*.csv'):
+                for csv in sim.glob('coordination/'+ion.upper()+'/*.csv'):
                     df = pd.read_csv(csv.abspath)
-                df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
-                index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
-                oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
+                    df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
+                    index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
+                    oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
             oxys = pd.concat(oxy)
-        dfs.append(oxys)
-        dfs = dfs[0]
+            dfs.append(oxys)
     return dfs
 
 def graph_closest_oxy_distances(dfs, ax=None, cume=True, axlim=(1, 6), binsize = .2, save=False):
@@ -165,7 +164,7 @@ def graph_closest_oxy_distances(dfs, ax=None, cume=True, axlim=(1, 6), binsize =
             axes object
     """
     if not ax:
-        fig = plt.figure(figsize = (4,3))
+        fig = plt.figure(figsize=(4,3))
         ax = fig.add_subplot(1,1,1)
     ax.set_xlim(axlim)
 
@@ -205,13 +204,7 @@ def get_peaks(bundle, ionname, mindist=1):
         *mins*
             indexes of minimum locations
     """
-    frames = []
-    for sim in bundle:
-        for csv in sim.glob('coordination/LI/*.csv'):
-            df = pd.read_csv(csv.abspath)
-            frames.append(df)
-
-    m, density = coordination.gee(frames, binnumber=200)
+    m, density = coordination.gee(bundle, ionname, binnumber=200)
     x = int(round(mindist / (m[1] - m[0])))
     peaks = peakutils.indexes(density, thres=.1, min_dist=x)
     mins = peakutils.indexes(-density, thres=.1, min_dist=x)

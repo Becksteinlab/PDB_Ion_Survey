@@ -91,13 +91,15 @@ def cume(files, maxdistance=20, binnumber=100, nummols=None):
     m = .5 * (e[:-1] + e[1:])
     return m, cumulative
 
-def gee(dataframes, binnumber=100, nummols=None):
+def gee(bundle, ionname, binnumber=200, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:
-        *dataframes*
-            list of distance dataframes
+        *bundle*
+            bundle of sims
+        *ionname*
+            name of ion of interest
         *binnumber*
-            number of desired bins for cumulative histogram; default = 100
+            number of desired bins for cumulative histogram; default = 200
         *nummols*
             number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
     :Returns:
@@ -106,10 +108,17 @@ def gee(dataframes, binnumber=100, nummols=None):
         *density*
             density histogram values
     '''
-    dataframe = pd.concat(dataframes)
+    frames = []
+    for sim in bundle:
+        for csv in sim.glob('coordination/'+ionname.upper()+'/*.csv'):
+            df = pd.read_csv(csv.abspath)
+            frames.append(df)
+
+
+    dataframe = pd.concat(frames)
 
     if nummols is None:
-        nummols = len(dataframes)
+        nummols = len(frames)
 
     h, e = np.histogram(dataframe['distance'], bins=binnumber)
     m = .5 * (e[:-1] + e[1:])

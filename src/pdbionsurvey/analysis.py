@@ -38,7 +38,7 @@ def make_sims(path, pdbfiles):
     for fil in pdbfiles:
         mds.Sim(path.abspath+fil.name[:4])
         sims.add(path.abspath+fil.name[:4])
-        with open(sims[fil.name[:4]][0].abspath+fil.name, 'w') as f:
+        with open(sims[fil.name[:4]][0].abspat, 'w') as f:
             f.write(fil.read())
             f.close()
     return sims

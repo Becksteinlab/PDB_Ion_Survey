@@ -38,7 +38,7 @@ def make_sims(path, pdbfiles):
     for fil in pdbfiles:
         mds.Sim(path.abspath+fil.name[:4])
         sims.add(path.abspath+fil.name[:4])
-        with open(sims[fil.name[:4]][0].abspat, 'w') as f:
+        with open(sims[fil.name[:4]][0].abspath + fil.name, 'w') as f:
             f.write(fil.read())
             f.close()
     return sims
@@ -56,7 +56,7 @@ def define_universe(sims, pdbfiles):
             sims[fil.name[:4]][0].universe = mda.Universe(fil.abspath)
         except:
             with open('failures.out', 'a') as f:
-                f.write(fil.name + '\n')
+                f.write(fil + '\n')
 
 def sim_labeling(bundle, ionname=None, project_tags=['pdbionsurvey', 'pdbsurvey']):
     """Adds tags and categories to sims.

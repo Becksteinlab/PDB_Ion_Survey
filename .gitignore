@@ -58,6 +58,8 @@ target/
 
 *.swp
 *.swo
+*.swn
 .nfs*
 
 .ipynb_checkpoints
+*.ipynb_checkpoints

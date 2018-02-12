@@ -226,7 +226,7 @@ def get_pdb_file(pdb_id, path, compression=False):
 
     # get logger instance
     log = _make_logger(os.path.join(path, 'pdb_ions_survey.log'))
-
+ 
     fullurl = 'http://www.rcsb.org/pdb/download/downloadFile.do?fileFormat=pdb'
     if compression:
         fullurl += '&compression=YES'

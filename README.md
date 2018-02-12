@@ -12,5 +12,5 @@ The input data are crystal structures from the [Protein Databank](http://www.pdb
 * Use get_pdb_file to download pdb files from the PDB.
 * Use en to create radial distributions for oxygen atoms around an ion.
 * Use cume to create a cumulative radial distribution function for oxygen atoms around an ion.
-* Use goee to create a density radial distribution function for oxygen atoms around an ion.
+* Use gee to create a density radial distribution function for oxygen atoms around an ion.
 * Talk to Martin Blech to use unparse or _emit.

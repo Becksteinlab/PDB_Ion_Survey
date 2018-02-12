@@ -114,7 +114,6 @@ def gee(bundle, ionname, binnumber=200, nummols=None):
             df = pd.read_csv(csv.abspath)
             frames.append(df)
 
-
     dataframe = pd.concat(frames)
 
     if nummols is None:

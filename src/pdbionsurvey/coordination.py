@@ -16,41 +16,42 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
 
-def en(protein, ion, maxdistance=20, oxynotprotein=True, periodic=True):
+def en(protein, ion, atomselection='name O* and not name OS', maxdistance=20, oxynotprotein=True, periodic=True):
     """Gives the distances of oxygen atoms from an ion.
     :Arguments:
         *protein*
-            protein Universe
+        protein Universe
         *ion*
-            ion Atom
+        ion Atom
+        *atomselection*
+        string selection for coordinating atoms
         *maxdistance*
-            maximum distance of interest from the ion; default = 20
+        maximum distance of interest from the ion; default = 20
         *oxynotprotein*
-            boolean value of whether to include oxygens not in the protein; default = True
+        boolean value of whether to include oxygens not in the protein; default = True
 
-    :Returns:
+        :Returns:
         *df*
-            `pandas.DataFrame` containing resids, resnames, and atom names
-            for each oxygen in the protein file
-    """
-    columns = ['resid', 'resname', 'atomname', 'distance']
-    if oxynotprotein:
-        oxy = protein.select_atoms('name O* and not name OS')
-    else:
-        oxy = protein.select_atoms('protein and name O* and not name OS')
-    if periodic and (protein.dimensions[:3] > 2).all():
-        box = protein.dimensions 
-        distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
-                                                     oxy.positions, box = box)
-    else:
-        distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
-                                                     oxy.positions)
-    df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames,
-                     'atomname': oxy.names, 'distance': distances[0]},
-                     columns=columns)
-    df = df[df['distance'] < maxdistance]
-    df = df.reset_index()[columns]
-    return df
+        `pandas.DataFrame` containing resids, resnames, and atom names
+        for each oxygen in the protein file
+        """
+        columns = ['resid', 'resname', 'atomname', 'distance']
+        if oxynotprotein:
+            oxy = protein.select_atoms(atomselection)
+        else:
+            oxy = protein.select_atoms('protein and '+atomselection)
+        if periodic and (protein.dimensions[:3] > 2).all():
+            box = protein.dimensions 
+            distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+                        oxy.positions, box = box)
+        else:
+            distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+                        oxy.positions)
+        df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames,
+                'atomname': oxy.names, 'distance': distances[0]}, columns=columns)
+        df = df[df['distance'] < maxdistance]
+        df = df.reset_index()[columns]
+        return df
 
 def cume(files, maxdistance=20, binnumber=100, nummols=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.
@@ -91,26 +92,28 @@ def cume(files, maxdistance=20, binnumber=100, nummols=None):
     m = .5 * (e[:-1] + e[1:])
     return m, cumulative
 
-def gee(bundle, ionname, binnumber=200, nummols=None):
+def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:
-        *bundle*
-            bundle of sims
-        *ionname*
-            name of ion of interest
-        *binnumber*
-            number of desired bins for cumulative histogram; default = 200
-        *nummols*
-            number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
+    *bundle*
+    bundle of sims
+    *ionname*
+    name of ion of interest
+    *atomname*
+    name of coordinating atom of interest
+    *binnumber*
+    number of desired bins for cumulative histogram; default = 200
+    *nummols*
+    number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
     :Returns:
-        *m*
-            midpoints of bins
-        *density*
-            density histogram values
+    *m*
+    midpoints of bins
+    *density*
+    density histogram values
     '''
     frames = []
     for sim in bundle:
-        for csv in sim.glob('coordination/'+ionname.upper()+'/*.csv'):
+        for csv in sim.glob('coordination/'+ionname.upper()+'/'+atomname+'/*.csv'):
             df = pd.read_csv(csv.abspath)
             frames.append(df)
 

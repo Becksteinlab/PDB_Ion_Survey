@@ -16,42 +16,47 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
 
-def en(protein, ion, atomselection='name O* and not name OS', maxdistance=20, oxynotprotein=True, periodic=True):
+def en(protein, ion, atomname='O', atomselection='name O* and not name OS', maxdistance=20, oxynotprotein=True, periodic=True):
     """Gives the distances of oxygen atoms from an ion.
     :Arguments:
-        *protein*
+    *protein*
         protein Universe
-        *ion*
+    *ion*
         ion Atom
-        *atomselection*
+    *atomname*
+        string name of atom
+    *atomselection*
         string selection for coordinating atoms
-        *maxdistance*
+    *maxdistance*
         maximum distance of interest from the ion; default = 20
-        *oxynotprotein*
+    *oxynotprotein*
         boolean value of whether to include oxygens not in the protein; default = True
 
-        :Returns:
-        *df*
+    :Returns:
+    *df*
         `pandas.DataFrame` containing resids, resnames, and atom names
         for each oxygen in the protein file
-        """
-        columns = ['resid', 'resname', 'atomname', 'distance']
-        if oxynotprotein:
-            oxy = protein.select_atoms(atomselection)
-        else:
-            oxy = protein.select_atoms('protein and '+atomselection)
-        if periodic and (protein.dimensions[:3] > 2).all():
-            box = protein.dimensions 
-            distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
-                        oxy.positions, box = box)
-        else:
-            distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
-                        oxy.positions)
-        df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames,
-                'atomname': oxy.names, 'distance': distances[0]}, columns=columns)
-        df = df[df['distance'] < maxdistance]
-        df = df.reset_index()[columns]
-        return df
+    """
+    columns = ['resid', 'resname', 'atomname', 'distance']
+    if oxynotprotein:
+        oxy = protein.select_atoms(atomselection)
+    else:
+        oxy = protein.select_atoms('protein and '+atomselection)
+    if periodic and (protein.dimensions[:3] > 2).all():
+        box = protein.dimensions 
+        distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+                    oxy.positions, box = box)
+    else:
+        distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+                    oxy.positions)
+    df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames,
+            'atomname': oxy.names, 'distance': distances[0]}, columns=columns)
+    df = df[df['distance'] < maxdistance]
+    df = df.reset_index()[columns]
+
+    df.to_csv(sim['coordination/'+ion+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
+
+    return df
 
 def cume(files, maxdistance=20, binnumber=100, nummols=None):
     """Creates a cumulative histogram of distances of oxygen atoms from an ion.

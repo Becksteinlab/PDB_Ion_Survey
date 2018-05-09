@@ -10,7 +10,7 @@ For a basic installation just type the command::
 from setuptools import setup, find_packages
 
 setup(name='pdbionsurvey',
-      version='0.1.0',
+      version='0.2.0-dev',
       description='survey of ion coordination in the Protein Data Bank',
       author='Kacey Clark',
       author_email='kacey.reidy@gmail.com',
@@ -29,5 +29,5 @@ setup(name='pdbionsurvey',
       scripts=[],
       license='GPLv3',
       long_description=open('README.md').read(),
-      install_requires=['numpy', 'pandas', 'MDAnalysis', 'mdsynthesis<1.0', 'peakutils', 'matplotlib']
+      install_requires=['numpy', 'pandas', 'MDAnalysis', 'mdsynthesis', 'peakutils', 'matplotlib']
       )

@@ -20,6 +20,8 @@ import peakutils
 
 from . import coordination
 
+IONNAMES = ['NA', 'LI', 'K', 'TL', 'CL', 'ZN', 'CA']
+
 def make_sims(path, pdbid):
     """Makes a Tree of sims in a path.
     :Arguments:
@@ -35,7 +37,7 @@ def make_sims(path, pdbid):
     sim.universe = u
     sim.categories['resolution'] = i.resolution
 
-def sim_labeling(sim, ionnames=['Na', 'Li', 'K', 'Tl', 'Cl', 'Zn'], project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
+def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
     """Adds tags and categories to sims.
     :Arguments:
         *sim*
@@ -64,6 +66,8 @@ def sim_labeling(sim, ionnames=['Na', 'Li', 'K', 'Tl', 'Cl', 'Zn'], project_tags
             try:
                 v = mda.Universe(sim[sim.name+'.pqr'].abspath)
                 ligs = set(u.atoms.resnames) - set(v.atoms.resnames)
+                sim.tags.remove('ligand')
+                ligs = list(ligs - ligs.intersection(IONNAMES))
                 if len(ligs) != 0:
                     sim.tags.add('ligand')
                 for lig in ligs:
@@ -118,94 +122,37 @@ def ligsolution(sim):
     u = mda.Universe(sim[sim.name+'.pdb'].abspath)
     v = mda.Universe(sim[sim.name+'.pqr'].abspath)
     ligs = set(u.atoms.resnames) - set(v.atoms.resnames)
-    ligs = list(ligs - ligs.intersection(['NA', 'LI', 'K', 'TL', 'CL']))
+    ligs = list(ligs - ligs.intersection(IONNAMES))
     for lig in ligs:
         ligatoms = u.select_atoms('resname '+lig)
         sim['ligands/'].make()
         ligatoms.write(sim['ligands/'+lig.upper()+'.pdb'].abspath)
         pdb2mol2(sim, lig)
 
-def closest_oxy_distance(bundle, ions, atomname='O', atomselection='name O* and not name OS', resolutions, cume = True, num_oxy = 6):
+def closest_oxy_distance(bundle, ion, num_oxy=6):
     """Finds distances of closest oxygens.
     :Arguments:
         *bundle*
             bundle of sims
         *ions*
-            list of ion names
-        *atomname*
-            string name of coordinating atom; default = 'O'
-        *atomselection*
-            string selection of coordinating atoms; default = 'name O* and not name OS'
-        *resolutions*
-            list of resolution numbers
-        *cume*
-            boolean value of whether to sort by resolution cumulatively; default = True
+            ion name
         *num_oxy*
             number of close oxygens of interest; default = 6
     :Returns:
-        *dfs*
-            list of DataFrames containing distances for the first num_oxy oxygen atoms from the ions in ions
+        *df*
+            DataFrame containing distances for the first num_oxy oxygen atoms
     """
     c = bundle
-    dfs = []
-    for res in resolutions:
-        if not cume:
-            c = c[[r > (res - .5) for r in c.categories['resolution']]]
-        c = c[[r <= res for r in c.categories['resolution']]]
-
-        for ion in ions:
-            z = c[c.tags[ion]]
-            oxy = []
-            for sim in z:
-                for csv in sim.glob('coordination/'+ion.upper()+'/'+atom.upper()+'*.csv'):
-                    df = pd.read_csv(csv.abspath)
-                    df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
-                    index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
-                    oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
-            oxys = pd.concat(oxy)
-            dfs.append(oxys)
-    return dfs
-
-def graph_closest_oxy_distances(dfs, ax=None, cume=True, axlim=(1, 6), binsize = .2, save=False):
-    """Creates a neat plot of closest oxygen distance data.
-    :Arguments:
-        *dfs*
-            pandas.DataFrame` containing distances for the first num_oxy oxygen atoms from the ions in ions
-        *ax*
-            axes object; default = None
-        *cume*
-            boolean value of whether to sort by resolution cumulatively; default = True
-        *axlim*
-            minimum and maximimum distances from ion of interest; default = (1, 6)
-         *binsize*
-            bin width of distances from ion; default = .2
-        *save*
-            boolean value of whether to save graph; default = False
-    :Returns:
-        *ax*
-            axes object
-    """
-    if not ax:
-        fig = plt.figure(figsize=(4,3))
-        ax = fig.add_subplot(1,1,1)
-    ax.set_xlim(axlim)
-
-    bins = np.arange(0, 8, binsize)
-
-    for i in range(len(dfs.columns)):
-        h, e = np.histogram(dfs[i+1], bins=bins)
-        m = .5 * (e[:-1] + e[1:])
-        ax.plot(m, h, label='oxy #' + str(i+1), lw=2)
-
-    ax.set_xlabel('Distance ($\AA$)')
-    ax.set_ylabel('Frequency')
-    ax.legend(fontsize='medium')
-
-    if save and cume:
-        ax.figure.savefig(ion + "+ Distance of Oxygens Histogram (res from " + (res - .5) + " to " + res + ").pdf")
-    elif save:
-        ax.figure.savefig(ion + "+ Distance of Oxygens Histogram (res to " + res + ").pdf")
-    return ax
+    z = c[c.tags[ion]]
+    oxy = []
+    for sim in z:
+        for csv in sim.glob('coordination/'+ion.upper()+'/O/*.csv'):
+            df = pd.read_csv(csv.abspath)
+            df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
+            index = '{}_{}'.format(sim.name, csv.name.replace('.csv', '')
+            oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
+    oxys = pd.concat(oxy)
+    return oxys
 
 def get_peaks(bundle, ionname, mindist=1):
     """Calculates location of peaks and troughs in g(r)s.

@@ -54,7 +54,7 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', maxd
     df = df[df['distance'] < maxdistance]
     df = df.reset_index()[columns]
 
-    df.to_csv(sim['coordination/'+ion+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
+    df.to_csv(sim['coordination/'+ion.name+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
 
     return df
 

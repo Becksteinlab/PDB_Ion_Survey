@@ -149,7 +149,7 @@ def closest_oxy_distance(bundle, ion, num_oxy=6):
         for csv in sim.glob('coordination/'+ion.upper()+'/O/*.csv'):
             df = pd.read_csv(csv.abspath)
             df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
-            index = '{}_{}'.format(sim.name, csv.name.replace('.csv', '')
+            index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
             oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
     oxys = pd.concat(oxy)
     return oxys

@@ -7,8 +7,6 @@
 Functions for analyzing ion coordination in PDB structures
 """
 
-from __future__ import absolute_import
-
 import os.path
 
 import numpy as np

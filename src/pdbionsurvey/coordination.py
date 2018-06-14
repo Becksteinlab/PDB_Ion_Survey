@@ -14,7 +14,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
 
-def en(protein, ion, atomname='O', atomselection='name O* and not name OS', maxdistance=20, oxynotprotein=True, periodic=True):
+def en(protein, ion, atomname='O', atomselection='name O* and not name OS', maxdistance=20, oxynotprotein=True, periodic=True, sim=None):
     """Gives the distances of oxygen atoms from an ion.
     :Arguments:
     *protein*
@@ -29,6 +29,8 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', maxd
         maximum distance of interest from the ion; default = 20
     *oxynotprotein*
         boolean value of whether to include oxygens not in the protein; default = True
+    *sim*
+        sim in which to store df; default=None
 
     :Returns:
     *df*
@@ -52,7 +54,9 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', maxd
     df = df[df['distance'] < maxdistance]
     df = df.reset_index()[columns]
 
-    df.to_csv(sim['coordination/'+ion.name+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
+    if sim is not None:
+        sim['coordination/'+ion.name+'/'+atomname+'/'].make()
+        df.to_csv(sim['coordination/'+ion.name+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
 
     return df
 
@@ -99,20 +103,20 @@ def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:
     *bundle*
-    bundle of sims
+        bundle of sims
     *ionname*
-    name of ion of interest
+        name of ion of interest
     *atomname*
-    name of coordinating atom of interest
+        name of coordinating atom of interest
     *binnumber*
-    number of desired bins for cumulative histogram; default = 200
+        number of desired bins for cumulative histogram; default = 200
     *nummols*
-    number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
+        number of ions/molecules serving as centers contributing to df; default=None, becomes number of files used
     :Returns:
     *m*
-    midpoints of bins
+        midpoints of bins
     *density*
-    density histogram values
+        density histogram values
     '''
     frames = []
     for sim in bundle:

@@ -34,7 +34,7 @@ def make_sims(path, pdbid):
     i = mmtf.fetch(pdbid)
     u = mda.Universe(i)
     u.atoms.write(sim.abspath+pdbid+'.pdb', bonds=None)
-    sim.universe = u
+#    sim.universe = u
     sim.categories['resolution'] = i.resolution
 
 def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
@@ -53,6 +53,10 @@ def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurve
         sim.tags.add(tag)
 
     u = mda.Universe(sim[sim.name+'.pdb'].abspath)
+
+    if not (u.dimensions[:3] > 2).all():
+        sim.tags.add('funky_dimensions')
+
     for ionname in ionnames:
         ions = u.select_atoms('name '+ionname.upper()+ ' and resname '+ionname.upper())
         if len(ions) != 0:

@@ -15,7 +15,7 @@ import sys
 import logging
 #import urllib2
 from collections import OrderedDict
-from cStringIO import StringIO
+#from cStringIO import StringIO
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl
 

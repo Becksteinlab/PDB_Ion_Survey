@@ -14,109 +14,69 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
 
-def en(protein, ion, atomname='O', atomselection='name O* and not name OS', maxdistance=20, oxynotprotein=True, periodic=True, sim=None):
+def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, sim=None):
     """Gives the distances of oxygen atoms from an ion.
     :Arguments:
-    *protein*
-        protein Universe
-    *ion*
-        ion Atom
-    *atomname*
-        string name of atom
-    *atomselection*
-        string selection for coordinating atoms
-    *maxdistance*
-        maximum distance of interest from the ion; default = 20
-    *oxynotprotein*
-        boolean value of whether to include oxygens not in the protein; default = True
-    *sim*
-        sim in which to store df; default=None
-
+        *protein*
+            protein Universe
+        *ion*
+            ion Atom
+        *atomname*
+            string name of atom
+        *atomselection*
+             string selection for coordinating atoms
+        *maxdistance*
+            maximum distance of interest from the ion; default = 20
+        *oxynotprotein*
+            boolean value of whether to include oxygens not in the protein; default = True
+        *sim*
+            sim in which to store df; default=None
     :Returns:
-    *df*
-        `pandas.DataFrame` containing resids, resnames, and atom names
-        for each oxygen in the protein file
-    """
+        *df*
+        `pandas.DataFrame` containing resids, resnames, and atom names for each oxygen in the protein file
+"""
     columns = ['resid', 'resname', 'atomname', 'distance']
     if oxynotprotein:
         oxy = protein.select_atoms(atomselection)
     else:
         oxy = protein.select_atoms('protein and '+atomselection)
     if periodic and (protein.dimensions[:3] > 2).all():
-        box = protein.dimensions 
+        box = protein.dimensions
         distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
-                    oxy.positions, box = box)
+        oxy.positions, box = box)
     else:
         distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
                     oxy.positions)
     df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames,
-            'atomname': oxy.names, 'distance': distances[0]}, columns=columns)
+        'atomname': oxy.names, 'distance': distances[0]}, columns=columns)
     df = df[df['distance'] < maxdistance]
+    df = df[df['distance'] > mindistance]
     df = df.reset_index()[columns]
 
     if sim is not None:
         sim['coordination/'+ion.name+'/'+atomname+'/'].make()
         df.to_csv(sim['coordination/'+ion.name+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
-
+    
     return df
-
-def cume(files, maxdistance=20, binnumber=100, nummols=None):
-    """Creates a cumulative histogram of distances of oxygen atoms from an ion.
-    :Arguments:
-        *files*
-            list of locations of files containing distance dataframes
-        *maxdistance*
-            maximum distance of interest from the ion; default = 20
-        *binnumber*
-            number of desired bins for cumulative histogram; default = 100
-        *nummols*
-            number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
-
-    :Returns:
-        *m*
-            midpoints of bins
-        *cumulative*
-            cumulative histogram values
-    """
-    dataframe = pd.DataFrame()
-    x = 0
-
-    for fil in files:
-        try:
-            f = pd.read_csv(fil, index_col=0)
-            dataframe = pd.concat([dataframe, f])
-            x += 1
-        except:
-            with open('failures.out', 'a') as f:
-                f.write(fil + '\n')
-
-    if nummols is None:
-        nummols = x
-
-    h, e = np.histogram(dataframe[dataframe['distance'] < maxdistance]['distance'], bins=binnumber)
-    h = h / float(nummols)
-    cumulative = np.cumsum(h)
-    m = .5 * (e[:-1] + e[1:])
-    return m, cumulative
 
 def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:
-    *bundle*
-        bundle of sims
-    *ionname*
-        name of ion of interest
-    *atomname*
-        name of coordinating atom of interest
-    *binnumber*
-        number of desired bins for cumulative histogram; default = 200
-    *nummols*
-        number of ions/molecules serving as centers contributing to df; default=None, becomes number of files used
+        *bundle*
+            bundle of sims
+        *ionname*
+            name of ion of interest
+        *atomname*
+            name of coordinating atom of interest
+        *binnumber*
+            number of desired bins for cumulative histogram; default = 200
+        *nummols*
+            number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
     :Returns:
-    *m*
-        midpoints of bins
-    *density*
-        density histogram values
+        *m*
+            midpoints of bins
+        *density*
+            density histogram values
     '''
     frames = []
     for sim in bundle:
@@ -132,7 +92,103 @@ def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     h, e = np.histogram(dataframe['distance'], bins=binnumber)
     m = .5 * (e[:-1] + e[1:])
     V = 4. / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3)
-
     density = h / V / float(nummols)
 
     return m, density
+
+def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
+    """Finds distances of closest oxygens.
+        :Arguments:
+            *bundle*
+                bundle of sims
+            *ions*
+                string ion name
+            *atom*
+                string coordinating atom name
+            *num_oxy*
+                number of close oxygens of interest; default = 6
+        :Returns:
+            *dfs*
+                list of DataFrames containing distances for the first num_oxy oxygen atoms from the ions in ions
+        """
+    c = bundle
+
+    z = c[c.tags[ion]]
+    oxy = []
+    for sim in z:
+        for csv in sim.glob('coordination/'+ion.upper()+'/'+atom+'/*.csv'):
+            df = pd.read_csv(csv.abspath)
+            df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
+            index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
+            oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
+    oxys = pd.concat(oxy)
+
+    return oxys
+
+def get_peaks(bundle, ionname, mindist=1):
+    """Calculates location of peaks and troughs in g(r)s.
+        :Arguments:
+            *bundle*
+                bundle of sims
+            *ionname*
+                name of ion of interest
+            *mindist*
+                minimum distance between peaks and troughs; default = 1
+        :Returns:
+            *m*
+                midpoints of bins
+            *density*
+                density histogram values
+            *peaks*
+                indexes of peak locations
+            *mins*
+                indexes of minimum locations
+        """
+    m, density = coordination.gee(bundle, ionname, binnumber=200)
+    x = int(round(mindist / (m[1] - m[0])))
+    peaks = peakutils.indexes(density, thres=.1, min_dist=x)
+    mins = peakutils.indexes(-density, thres=.1, min_dist=x)
+    return m, density, peaks, mins
+
+def set_UkT(sim, ionname, ionselection, ioncharge=1):
+    '''
+    :Arguments:
+        *sim*
+            sim
+        *ionname*
+            string name of ion
+        *ionselection*
+            string selection of ion
+        *ioncharge*
+            int or float charge of ion in e-
+    '''
+
+u = mda.Universe(sim[sim.name+'.pdb'].abspath)
+u2 = mda.Universe(sim[sim.name+'.pqr'].abspath)
+
+ions = u.select_atoms(ionselection)
+atoms = u2.atoms
+
+potens = []
+for j, ion in enumerate(ions):
+    columns = ['resid', 'resname', 'atomname', 'charge', 'distance', 'coulomb potential']
+    box = u.dimensions
+    distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+            atoms.positions, box = box)
+    potentials = []
+    for i, atom in enumerate(atoms):
+        potentials.append(atom.charge * ioncharge * (1.60217662e-19) * (1.60217662e-19) * 8.9875517873681764e9 / (distances[0,i] * 10**-10))
+        poten = pd.DataFrame({'resid': atoms.resids, 'resname': atoms.resnames, 'atomname': atoms.names, 'charge': atoms.charges, 'distance': distances[0], 'coulomb potential': potentials}, columns=columns)
+
+potenergy = sum(poten['coulomb potential'])
+
+kb = 1.38064852e-23
+
+kT = kb * 300
+
+UkT = potenergy/kT
+
+sim.categories[ionname+str(j)+'_U_kT'] = UkT
+
+potens.append(poten)
+return [sim.name, potens]

@@ -163,32 +163,32 @@ def set_UkT(sim, ionname, ionselection, ioncharge=1):
             int or float charge of ion in e-
     '''
 
-u = mda.Universe(sim[sim.name+'.pdb'].abspath)
-u2 = mda.Universe(sim[sim.name+'.pqr'].abspath)
+    u = mda.Universe(sim[sim.name+'.pdb'].abspath)
+    u2 = mda.Universe(sim[sim.name+'.pqr'].abspath)
 
-ions = u.select_atoms(ionselection)
-atoms = u2.atoms
+    ions = u.select_atoms(ionselection)
+    atoms = u2.atoms
 
-potens = []
-for j, ion in enumerate(ions):
-    columns = ['resid', 'resname', 'atomname', 'charge', 'distance', 'coulomb potential']
-    box = u.dimensions
-    distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
-            atoms.positions, box = box)
-    potentials = []
-    for i, atom in enumerate(atoms):
-        potentials.append(atom.charge * ioncharge * (1.60217662e-19) * (1.60217662e-19) * 8.9875517873681764e9 / (distances[0,i] * 10**-10))
+    potens = []
+    for j, ion in enumerate(ions):
+        columns = ['resid', 'resname', 'atomname', 'charge', 'distance', 'coulomb potential']
+        box = u.dimensions
+        distances = mda.lib.distances.distance_array(ion.position[np.newaxis, :],
+                    atoms.positions, box = box)
+        potentials = []
+        for i, atom in enumerate(atoms):
+            potentials.append(atom.charge * ioncharge * (1.60217662e-19) * (1.60217662e-19) * 8.9875517873681764e9 / (distances[0,i] * 10**-10))
         poten = pd.DataFrame({'resid': atoms.resids, 'resname': atoms.resnames, 'atomname': atoms.names, 'charge': atoms.charges, 'distance': distances[0], 'coulomb potential': potentials}, columns=columns)
 
-potenergy = sum(poten['coulomb potential'])
+    potenergy = sum(poten['coulomb potential'])
 
-kb = 1.38064852e-23
+    kb = 1.38064852e-23
 
-kT = kb * 300
+    kT = kb * 300
 
-UkT = potenergy/kT
+    UkT = potenergy/kT
 
-sim.categories[ionname+str(j)+'_U_kT'] = UkT
+    sim.categories[ionname+str(j)+'_U_kT'] = UkT
 
-potens.append(poten)
-return [sim.name, potens]
+    potens.append(poten)
+    return [sim.name, potens]

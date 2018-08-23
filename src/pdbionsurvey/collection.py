@@ -16,7 +16,6 @@ import io
 import logging
 import urllib.request
 from collections import OrderedDict
-#from cStringIO import StringIO
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl
 
@@ -144,7 +143,7 @@ def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=Fa
     f = urllib.request.urlopen(req)
     result = f.read()
     idlist = str(result)
-    idlist = idlist.split('\n')
+    idlist = idlist.split('\\n')
     query_paramsB = dict()
     query_paramsB['queryType'] = 'org.pdb.query.simple.ChainTypeQuery'
     if containsProtein:
@@ -172,12 +171,19 @@ def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=Fa
     fB = urllib.request.urlopen(reqB)
     resultB = fB.read()
     idlistB = str(resultB)
-    idlistB = idlistB.split('\n')
+    idlistB = idlistB.split('\\n')
+    try:
+        idlist.remove("'")
+    except:
+        pass
+    try:
+        idlistB.remove("'")
+    except:
+        pass
     idset = set(idlist)
     idsetB = set(idlistB)
     ids = idset.intersection(idsetB)
     ids = list(ids)
-    ids = filter(None, ids)
     return ids
 
 

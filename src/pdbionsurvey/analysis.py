@@ -22,13 +22,13 @@ from . import coordination
 
 IONNAMES = ['NA', 'MG', 'K', 'CA', 'V', 'CR', 'MN', 'FE', 'CO', 'NI', 'CU', 'ZN', 'PD', 'AG', 'CD', 'IR', 'PT', 'AU', 'HG', 'LA', 'PB', 'TL', 'LI', 'BA', 'RB', 'CS', 'SR', 'CL', 'IOD', 'F', 'BR']
 
-def make_sims(path='sims/', pdbid):
+def make_sims(pdbid, path='sims/'):
     """Makes a Tree of sims in a path.
     :Arguments:
-        *path*
-            path to sims
         *pdbid*
             PDB id code
+        *path*
+            path to sims; default = 'sims/'
     """
     sim = mds.Sim(path.abspath+pdbid)
     i = mmtf.fetch(pdbid)

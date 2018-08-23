@@ -12,11 +12,13 @@ from __future__ import absolute_import
 import os
 
 import mdsynthesis as mds
+import datreant as dtr
 import MDAnalysis as mda
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import peakutils
+import mmtf
 
 from . import coordination
 
@@ -28,9 +30,11 @@ def make_sims(pdbid, path='sims/'):
         *pdbid*
             PDB id code
         *path*
-            path to sims; default = 'sims/'
+            String or Tree path to sims; default = 'sims/'
     """
-    sim = mds.Sim(path.abspath+pdbid)
+    if type(path) == dtr.trees.Tree:
+        path = path.abspath
+    sim = mds.Sim(path+pdbid)
     i = mmtf.fetch(pdbid)
     u = mda.Universe(i)
     u.atoms.write(sim.abspath+pdbid+'.pdb', bonds=None)

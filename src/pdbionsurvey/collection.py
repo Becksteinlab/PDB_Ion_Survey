@@ -11,9 +11,10 @@ from __future__ import absolute_import
 
 import os.path
 import sys
+import io
 
 import logging
-#import urllib2
+import urllib.request
 from collections import OrderedDict
 #from cStringIO import StringIO
 from xml.sax.saxutils import XMLGenerator
@@ -35,7 +36,7 @@ def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text', depth
             return
         key, value = result
     if (not hasattr(value, '__iter__')
-            or isinstance(value, basestring)
+            or isinstance(value, str)
             or isinstance(value, dict)):
         value = [value]
     for index, v in enumerate(value):
@@ -44,8 +45,8 @@ def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text', depth
         if v is None:
             v = OrderedDict()
         elif not isinstance(v, dict):
-            v = unicode(v)
-        if isinstance(v, basestring):
+            v = str(v)
+        if isinstance(v, str):
             v = OrderedDict(((cdata_key, v),))
         cdata = None
         attrs = OrderedDict()
@@ -92,7 +93,7 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
         raise ValueError('Document must have exactly one root.')
     must_return = False
     if output is None:
-        output = StringIO()
+        output = io.StringIO()
         must_return = True
     content_handler = XMLGenerator(output, encoding)
     if full_document:
@@ -139,8 +140,8 @@ def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=Fa
     url = 'http://www.rcsb.org/pdb/rest/search'
     queryText = unparse(scan_params, pretty = True)
     queryText = queryText.encode()
-    req = urllib2.Request(url, data = queryText)
-    f = urllib2.urlopen(req)
+    req = urllib.request.Request(url, data = queryText)
+    f = urllib.request.urlopen(req)
     result = f.read()
     idlist = str(result)
     idlist = idlist.split('\n')
@@ -167,8 +168,8 @@ def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=Fa
     urlB = 'http://www.rcsb.org/pdb/rest/search'
     queryTextB = unparse(scan_paramsB, pretty=True)
     queryTextB = queryTextB.encode()
-    reqB = urllib2.Request(urlB, data=queryTextB)
-    fB = urllib2.urlopen(reqB)
+    reqB = urllib.request.Request(urlB, data=queryTextB)
+    fB = urllib.request.urlopen(reqB)
     resultB = fB.read()
     idlistB = str(resultB)
     idlistB = idlistB.split('\n')

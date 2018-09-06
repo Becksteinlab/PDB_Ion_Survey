@@ -163,6 +163,9 @@ def set_UkT(sim, ionname, ionselection, ioncharge=1):
             int or float charge of ion in e-
     '''
 
+    if not sim[sim.name+'.pqr'].exists:
+        return None
+
     u = mda.Universe(sim[sim.name+'.pdb'].abspath)
     u2 = mda.Universe(sim[sim.name+'.pqr'].abspath)
 
@@ -170,6 +173,10 @@ def set_UkT(sim, ionname, ionselection, ioncharge=1):
     atoms = u2.atoms
 
     potens = []
+
+    if len(ions) == 0:
+        return None
+
     for j, ion in enumerate(ions):
         columns = ['resid', 'resname', 'atomname', 'charge', 'distance', 'coulomb potential']
         box = u.dimensions

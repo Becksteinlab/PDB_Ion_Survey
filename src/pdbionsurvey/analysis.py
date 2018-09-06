@@ -19,6 +19,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import peakutils
 import mmtf
+#import environ
 
 from . import coordination
 
@@ -107,6 +108,8 @@ def pdb2mol2(sim, lig):
     return os.system('/usr/bin/babel {} {}'.format(sim['ligands/'+lig.upper()+'.pdb'], sim['ligands/'+lig.upper()+'.mol2']))
 
 def ligsolution(sim):
+    if not sim[sim.name+'.pqr'].exists:
+        return None
     u = mda.Universe(sim[sim.name+'.pdb'].abspath)
     v = mda.Universe(sim[sim.name+'.pqr'].abspath)
     ligs = set(u.atoms.resnames) - set(v.atoms.resnames)
@@ -131,7 +134,7 @@ def allligs(sim):
         v.write(sim['ligands/all_ligands.pdb'].abspath)
 
 def complete(filename, outname):
-    env = environ()
+    env = environ.Env()
     # topology parameters for building from internal coordinates
     # modified Charmm22
     env.libs.topology.read('$(LIB)/top_heav.lib')

@@ -19,7 +19,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import peakutils
 import mmtf
-#import environ
 
 from . import coordination
 
@@ -31,10 +30,8 @@ def make_sims(pdbid, path='sims/'):
         *pdbid*
             PDB id code
         *path*
-            String or Tree path to sims; default = 'sims/'
+            String path to sims; default = 'sims/'
     """
-    if type(path) == dtr.trees.Tree:
-        path = path.abspath
     sim = mds.Sim(path+pdbid)
     i = mmtf.fetch(pdbid)
     u = mda.Universe(i)
@@ -132,20 +129,6 @@ def allligs(sim):
             else:
                 v = lig
         v.write(sim['ligands/all_ligands.pdb'].abspath)
-
-def complete(filename, outname):
-    env = environ.Env()
-    # topology parameters for building from internal coordinates
-    # modified Charmm22
-    env.libs.topology.read('$(LIB)/top_heav.lib')
-    env.libs.parameters.read('$(LIB)/par.lib')
-
-    mdl = modeller.scripts.complete_pdb(env, filename)
-    mdl.write(outname)
-    return outname
-
-def completesim(sim):
-    complete(sim[sim.name+'.pdb'].abspath, sim[sim.name+'-complete.pdb'].abspath)
 
 def pdb2pqrcomplete(sim):
     return os.system('/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py --ff=charmm --ligand {} --whitespace {} {}'.format(sim['ligands/all_ligands.mol2'].relpath, sim[sim.name+'-complete.pdb'].relpath, sim[sim.name+'-withligs.pqr'].relpath))

@@ -103,7 +103,7 @@ def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurve
 def pdb2pqr(sim):
     return os.system('/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py --ff=charmm --whitespace {} {}'.format(sim.relpath+sim.name+'.pdb', sim.relpath+sim.name+'.pqr'))
 
-def pdb2mol2(lig):
+def pdb2mol2(sim, lig):
     return os.system('/usr/bin/babel {} {}'.format(sim['ligands/'+lig.upper()+'.pdb'], sim['ligands/'+lig.upper()+'.mol2']))
 
 def ligsolution(sim):
@@ -116,7 +116,7 @@ def ligsolution(sim):
         sim['ligands/'].make()
         sim.tags.add(lig)
         ligatoms.write(sim['ligands/'+lig.upper()+'.pdb'].abspath)
-        pdb2mol2(lig)
+        pdb2mol2(sim, lig)
 
 def allligs(sim):
     u = mda.Universe(sim[sim.name+'.pdb'].abspath)

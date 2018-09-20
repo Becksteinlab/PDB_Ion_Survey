@@ -32,10 +32,10 @@ def make_sims(pdbid, path='sims/'):
         *path*
             String path to sims; default = 'sims/'
     """
-    sim = mds.Sim(path+pdbid)
+    sim = mds.Sim(os.path.join(path, pdbid))
     i = mmtf.fetch(pdbid)
     u = mda.Universe(i)
-    u.atoms.write(sim.abspath+pdbid+'.pdb', bonds=None)
+    u.atoms.write(os.path.join(sim.abspath, pdbid+'.pdb'), bonds=None)
     try:
         sim.categories['resolution'] = i.resolution
     except:
@@ -118,17 +118,19 @@ def ligsolution(sim):
         ligatoms.write(sim['ligands/'+lig.upper()+'.pdb'].abspath)
         pdb2mol2(sim, lig)
 
-def allligs(sim):
+def allligs(sim, allname='all_ligands.pdb'):
     u = mda.Universe(sim[sim.name+'.pdb'].abspath)
     v = None
     if sim['ligands/'].exists:
         for leaf in sim['ligands/'].leaves():
+            if leaf.name == allname:
+                continue
             lig = u.select_atoms('resname '+leaf.name[:-4])
             if v:
                 v = v + (lig - v)
             else:
                 v = lig
-        v.write(sim['ligands/all_ligands.pdb'].abspath)
+        v.write(sim[os.path.join('ligands', allname)].abspath)
 
 def pdb2pqrcomplete(sim):
     return os.system('/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py --ff=charmm --ligand {} --whitespace {} {}'.format(sim['ligands/all_ligands.mol2'].relpath, sim[sim.name+'-complete.pdb'].relpath, sim[sim.name+'-withligs.pqr'].relpath))

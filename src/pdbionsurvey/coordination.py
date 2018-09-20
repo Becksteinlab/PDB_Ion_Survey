@@ -150,7 +150,24 @@ def get_peaks(bundle, ionname, mindist=1):
     mins = peakutils.indexes(-density, thres=.1, min_dist=x)
     return m, density, peaks, mins
 
-def set_UkT(sim, ionname, ionselection, ioncharge=1):
+def get_charge(ionname):
+    if ionname.upper() is in ['LI', 'NA', 'K', 'RB', 'CS', 'TL', 'RH', 'AG', 'AU']:
+        return 1
+    elif ionname.upper() is in ['MG', 'CA', 'SR', 'BA', 'MN', 'CO', 'NI', 'PD', 'PT', 'CU', 'ZN', 'CD', 'HG', 'PB']:
+        return 2
+    elif ionname.upper() is in ['LA',  'V', 'CR', 'FE', 'RU', 'OS', 'AL', 'GA', 'IN', 'SB']:
+        return 3
+    elif ionname.upper() is in ['ZR', 'IR']:
+        return 4
+    elif ionname.upper() is in ['W']:
+        reutrn 6
+    elif ionname.upper() is in ['F', 'CL', 'BR']:
+        return -1
+    elif ionname.upper() is in ['IOD', 'I']:
+        warnings.warn('Iodide has name I and resname IOD.')
+        return -1
+
+def set_UkT(sim, ionname, ionselection):
     '''
     :Arguments:
         *sim*
@@ -159,10 +176,9 @@ def set_UkT(sim, ionname, ionselection, ioncharge=1):
             string name of ion
         *ionselection*
             string selection of ion
-        *ioncharge*
-            int or float charge of ion in e-
     '''
 
+    ioncharge = get_charge(ionname)
     if not sim[sim.name+'.pqr'].exists:
         return None
 

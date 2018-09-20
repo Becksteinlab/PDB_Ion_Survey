@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
+import warnings
 
 def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, sim=None):
     """Gives the distances of oxygen atoms from an ion.
@@ -151,19 +152,19 @@ def get_peaks(bundle, ionname, mindist=1):
     return m, density, peaks, mins
 
 def get_charge(ionname):
-    if ionname.upper() is in ['LI', 'NA', 'K', 'RB', 'CS', 'TL', 'RH', 'AG', 'AU']:
+    if ionname.upper() in ['LI', 'NA', 'K', 'RB', 'CS', 'TL', 'RH', 'AG', 'AU']:
         return 1
-    elif ionname.upper() is in ['MG', 'CA', 'SR', 'BA', 'MN', 'CO', 'NI', 'PD', 'PT', 'CU', 'ZN', 'CD', 'HG', 'PB']:
+    elif ionname.upper() in ['MG', 'CA', 'SR', 'BA', 'MN', 'CO', 'NI', 'PD', 'PT', 'CU', 'ZN', 'CD', 'HG', 'PB']:
         return 2
-    elif ionname.upper() is in ['LA',  'V', 'CR', 'FE', 'RU', 'OS', 'AL', 'GA', 'IN', 'SB']:
+    elif ionname.upper() in ['LA',  'V', 'CR', 'FE', 'RU', 'OS', 'AL', 'GA', 'IN', 'SB']:
         return 3
-    elif ionname.upper() is in ['ZR', 'IR']:
+    elif ionname.upper() in ['ZR', 'IR']:
         return 4
-    elif ionname.upper() is in ['W']:
-        reutrn 6
-    elif ionname.upper() is in ['F', 'CL', 'BR']:
+    elif ionname.upper() in ['W']:
+        return 6
+    elif ionname.upper() in ['F', 'CL', 'BR']:
         return -1
-    elif ionname.upper() is in ['IOD', 'I']:
+    elif ionname.upper() in ['IOD', 'I']:
         warnings.warn('Iodide has name I and resname IOD.')
         return -1
 

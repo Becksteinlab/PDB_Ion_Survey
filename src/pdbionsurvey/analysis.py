@@ -10,6 +10,7 @@ Functions for creating sims and analyzing coordination data.
 from __future__ import absolute_import
 
 import os
+import subprocess
 
 import mdsynthesis as mds
 import datreant as dtr
@@ -40,6 +41,7 @@ def make_sims(pdbid, path='sims/'):
         sim.categories['resolution'] = i.resolution
     except:
         sim.categories['resolution'] = 'N/A'
+    return sim
 
 def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
     """Adds tags and categories to sims.
@@ -98,11 +100,11 @@ def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurve
     if not (u.dimensions[:3] > 2).all():
         sim.tags.add('funky_dimensions')
 
-def pdb2pqr(sim):
-    return os.system('/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py --ff=charmm --whitespace {} {}'.format(sim.relpath+sim.name+'.pdb', sim.relpath+sim.name+'.pqr'))
+def pdb2pqr(sim, pdb2pqrloc='/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py'):
+    return subprocess.run(pdb2pqrloc +' --ff=charmm --whitespace {} {}'.format(sim.relpath+sim.name+'.pdb', sim.relpath+sim.name+'.pqr'))
 
-def pdb2mol2(sim, lig):
-    return os.system('/usr/bin/babel {} {}'.format(sim['ligands/'+lig.upper()+'.pdb'], sim['ligands/'+lig.upper()+'.mol2']))
+def pdb2mol2(sim, lig, babelloc='/usr/bin/babel'):
+    return subprocess.run(babelloc+' {} {}'.format(sim['ligands/'+lig.upper()+'.pdb'], sim['ligands/'+lig.upper()+'.mol2']))
 
 def ligsolution(sim):
     if not sim[sim.name+'.pqr'].exists:
@@ -132,5 +134,5 @@ def allligs(sim, allname='all_ligands.pdb'):
                 v = lig
         v.write(sim[os.path.join('ligands', allname)].abspath)
 
-def pdb2pqrcomplete(sim):
-    return os.system('/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py --ff=charmm --ligand {} --whitespace {} {}'.format(sim['ligands/all_ligands.mol2'].relpath, sim[sim.name+'-complete.pdb'].relpath, sim[sim.name+'-withligs.pqr'].relpath))
+def pdb2pqrcomplete(sim, pdb2pqrloc='/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py'):
+    return subprocess.run(pdb2pqrloc+' --ff=charmm --ligand {} --whitespace {} {}'.format(sim['ligands/all_ligands.mol2'].relpath, sim[sim.name+'-complete.pdb'].relpath, sim[sim.name+'-withligs.pqr'].relpath))

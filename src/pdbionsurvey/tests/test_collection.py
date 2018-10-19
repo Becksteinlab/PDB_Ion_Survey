@@ -1,0 +1,5 @@
+import pdbionsurvey.collection as collection
+
+def test_get_pdb_ids():
+    ids = collection.get_pdb_ids('NA')
+    assert(all([i in ids for i in ['2YIG', '4XJH', '2HDS', '3VQZ', '4XCZ', '4ADI', '4LSQ', '3P6Z', '5UQ6', '4IKB', '1B7R', '6CL5', '1QHU', '5II0', '5ORG', '1GFK', '4JT9', '5KAY', '2YC3', '5KVD', '5PSW', '5PTF', '2WSY', '4WNW', '4EIK', '5POH', '3IHV', '4ODN', '5D74', '4RBM', '4AIN', '5PSF', '4H1T', '1TQY', '4FQF', '5PRO', '2FSU', '5IR5', '4TW6', '3AHH', '4OFX', '4CBK', '2EL2', '5O6Q', '3HJB', '2Q94', '5PSI', '2IZE', '4J1B', '5IAJ', '3GL5', '4QET', '5CNX', '5BPL', '3NYU', '4YEL', '2EID', '1I5F', '2A65', '5YU4', '5OB6', '4UXW', '5PTT', '3NU6', '3W5Z', '5PVC', '5HI0', '1H80', '4Q29', '5OHG', '2QMW', '3DC7', '5JXH', '3T9G', '4DRT', '3N79', '4QF6', '5M4L', '4MB6', '4XCQ', '4ZQK', '4W9N', '6F16', '4W5Z', '2EZU', '4LL2', '1KNR', '1D7R', '4AZJ', '4TTT', '4V15', '1Y48', '4NJH', '5D4F', '2GTX', '3S54', '3S9O', '3QVI', '3ZUX', '1UXT', '2WGF', '4BY4', '1GF7', '4WXG', '2GHE', '1VIZ', '5FS5', '5I9B', '4LDK', '2YPD', '3L1O', '5EFD', '5ZCP', '4R9I', '4X9C', '4JJD', '3M5P', '5PSY', '4BAM', '4DC4', '2FCW', '3IWJ', '3EZQ']]))

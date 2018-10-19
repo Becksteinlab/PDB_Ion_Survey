@@ -60,6 +60,43 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
     
     return df
 
+def avg_en(bundle, ionname, atomname='O', binnumber=200, nummols=None):
+    '''Produces a graph of density as a function of distance
+        :Arguments:
+            *bundle*
+                bundle of sims
+            *ionname*
+                name of ion of interest
+            *atomname*
+                name of coordinating atom of interest
+            *binnumber*
+                number of desired bins for cumulative histogram; default = 200
+            *nummols*
+                number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
+        :Returns:
+            *m*
+                midpoints of bins
+            *n*
+                average histogram values
+    '''
+    frames = []
+    for sim in bundle:
+        for csv in sim.glob('coordination/'+ionname.upper()+'/'+atomname+'/*.csv'):
+            df = pd.read_csv(csv.abspath)
+            frames.append(df)
+
+    dataframe = pd.concat(frames)
+
+    if nummols is None:
+        nummols = len(frames)
+
+    h, e = np.histogram(dataframe['distance'], bins=binnumber)
+    m = .5 * (e[:-1] + e[1:])
+
+    n = h / float(nummols)
+
+    return m, n
+
 def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:

@@ -1,0 +1,8 @@
+[
+  "src/pdbionsurvey/tests/test_analysis.py::test_simmaking",
+  "src/pdbionsurvey/tests/test_analysis.py::test_pqrmaking",
+  "src/pdbionsurvey/tests/test_analysis.py::test_ligmaking",
+  "src/pdbionsurvey/tests/test_analysis.py::test_allligs",
+  "src/pdbionsurvey/tests/test_collection.py::test_get_pdb_ids",
+  "src/pdbionsurvey/tests/test_coordination.py::test_get_charge"
+]

@@ -1,0 +1,7 @@
+{
+  "src/pdbionsurvey/tests/test_analysis.py::test_allligs": true,
+  "src/pdbionsurvey/tests/test_analysis.py::test_ligmaking": true,
+  "src/pdbionsurvey/tests/test_analysis.py::test_pqrmaking": true,
+  "src/pdbionsurvey/tests/test_ligmaking.py::test_ligmaking": true,
+  "tests/test-complete.py::test_ligmaking": true
+}

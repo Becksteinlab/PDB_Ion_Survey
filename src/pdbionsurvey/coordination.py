@@ -15,11 +15,11 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 import warnings
 
-def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, sim=None):
+def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
     """Gives the distances of oxygen atoms from an ion.
     :Arguments:
-        *protein*
-            protein Universe
+        *sim*
+            protein Sim
         *ion*
             ion Atom
         *atomname*
@@ -30,13 +30,19 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
             maximum distance of interest from the ion; default = 20
         *oxynotprotein*
             boolean value of whether to include oxygens not in the protein; default = True
-        *sim*
-            sim in which to store df; default=None
+        *pqr*
+            boolean value of whether to use pqr or pdb; default = False
     :Returns:
         *df*
         `pandas.DataFrame` containing resids, resnames, and atom names for each oxygen in the protein file
 """
     columns = ['resid', 'resname', 'atomname', 'distance']
+
+    if pqr:
+        protein = mda.Universe(sim[sim.name+'.pqr'].abspath)
+    else:
+        protein = mda.Universe(sim[sim.name+'.pqr'].abspath)
+
     if oxynotprotein:
         oxy = protein.select_atoms(atomselection)
     else:
@@ -54,11 +60,66 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
     df = df[df['distance'] > mindistance]
     df = df.reset_index()[columns]
 
-    if sim is not None:
-        sim['coordination/'+ion.name+'/'+atomname+'/'].make()
-        df.to_csv(sim['coordination/'+ion.name+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
+    sim['coordination/'+ion.name+'/'+atomname+'/'].make()
+    df.to_csv(sim['coordination/'+ion.name+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
     
     return df
+
+def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
+    """Gives the distances of oxygen atoms from an ion.
+        :Arguments:
+            *sim*
+                protein Sim
+            *atomname*
+                string name of atom
+            *atomselection*
+                string selection for coordinating atoms
+            *maxdistance*
+                maximum distance of interest from the ion; default = 20
+            *oxynotprotein*
+                boolean value of whether to include oxygens not in the protein; default = True
+            *pqr*
+                boolean value of whether to use pqr or pdb; default = False
+        :Returns:
+            *df*
+                `pandas.DataFrame` containing resids, resnames, and atom names for each oxygen in the protein file
+    """
+    columns = ['resid', 'resname', 'atomname', 'distance']
+
+    if pqr:
+        protein = mda.Universe(sim[sim.name+'.pqr'].abspath)
+    else:
+        protein = mda.Universe(sim[sim.name+'.pqr'].abspath)
+
+    if oxynotprotein:
+        oxy = protein.select_atoms(atomselection)
+    else:
+        oxy = protein.select_atoms('protein and '+atomselection)
+
+    origins = protein.select_atoms('resname HOH')
+
+    sim['coordination/WATER/'+atomname+'/'].make()
+
+    dfs = []
+
+    for origin in origins:
+        if periodic and (protein.dimensions[:3] > 2).all():
+            box = protein.dimensions
+            distances = mda.lib.distances.distance_array(origin.position[np.newaxis, :],
+                    oxy.positions, box = box)
+        else:
+            distances = mda.lib.distances.distance_array(origin.position[np.newaxis, :],
+                    oxy.positions)
+
+        df = pd.DataFrame({'resid': oxy.resids, 'resname': oxy.resnames,
+            'atomname': oxy.names, 'distance': distances[0]}, columns=columns)
+        df = df[df['distance'] < maxdistance]
+        df = df[df['distance'] > mindistance]
+        df = df.reset_index()[columns]
+
+        df.to_csv(sim['coordination/WATER/'+atomname+'/{}.csv'.format(origin.index)].abspath)
+
+    return dfs
 
 def avg_en(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     '''Produces a graph of density as a function of distance

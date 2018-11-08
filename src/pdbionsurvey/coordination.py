@@ -156,7 +156,9 @@ def avg_en(bundle, ionname, atomname='O', binnumber=200, nummols=None):
 
     n = h / float(nummols)
 
-    return m, n
+    ndf = pd.DataFrame({'radius': m, 'count': n}, columns=['radius', 'count'])
+
+    return ndf
 
 def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     '''Produces a graph of density as a function of distance
@@ -193,7 +195,9 @@ def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     V = 4. / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3)
     density = h / V / float(nummols)
 
-    return m, density
+    gdf = pd.DataFrame({'radius': m, 'density': density}, columns=['radius', 'density'])
+
+    return gdf
 
 def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
     """Finds distances of closest oxygens.

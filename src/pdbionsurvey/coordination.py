@@ -121,7 +121,7 @@ def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindist
 
     return dfs
 
-def avg_en(bundle, ionname, atomname='O', binnumber=200, nummols=None):
+def avg_en(bundle, ionname, atomname='O', binsize=1, nummols=None):
     '''Produces a graph of density as a function of distance
         :Arguments:
             *bundle*
@@ -130,8 +130,8 @@ def avg_en(bundle, ionname, atomname='O', binnumber=200, nummols=None):
                 name of ion of interest
             *atomname*
                 name of coordinating atom of interest
-            *binnumber*
-                number of desired bins for cumulative histogram; default = 200
+            *binsize*
+                size of desired bins for histogram; default = 1
             *nummols*
                 number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
         :Returns:
@@ -151,7 +151,7 @@ def avg_en(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     if nummols is None:
         nummols = len(frames)
 
-    h, e = np.histogram(dataframe['distance'], bins=binnumber)
+    h, e = np.histogram(dataframe['distance'], bins=np.arange(0, max(dataframe['distance']), binsize))
     m = .5 * (e[:-1] + e[1:])
 
     n = h / float(nummols)
@@ -160,7 +160,7 @@ def avg_en(bundle, ionname, atomname='O', binnumber=200, nummols=None):
 
     return ndf
 
-def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
+def gee(bundle, ionname, atomname='O', binsize=1, nummols=None):
     '''Produces a graph of density as a function of distance
     :Arguments:
         *bundle*
@@ -169,8 +169,8 @@ def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
             name of ion of interest
         *atomname*
             name of coordinating atom of interest
-        *binnumber*
-            number of desired bins for cumulative histogram; default = 200
+        *binsize*
+            size of desired bins for histogram; default = 1
         *nummols*
             number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
     :Returns:
@@ -190,7 +190,7 @@ def gee(bundle, ionname, atomname='O', binnumber=200, nummols=None):
     if nummols is None:
         nummols = len(frames)
 
-    h, e = np.histogram(dataframe['distance'], bins=binnumber)
+    h, e = np.histogram(dataframe['distance'], bins=np.arange(0, max(dataframe['distance']), binsize))
     m = .5 * (e[:-1] + e[1:])
     V = 4. / 3 * np.pi * (e[1:] ** 3 - e[:-1] ** 3)
     density = h / V / float(nummols)

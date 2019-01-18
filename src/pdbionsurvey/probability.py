@@ -93,3 +93,11 @@ def ks_test_comparison(ionnames=IONNAMES, alpha=1):
     dictionary['ion/atom'] = u
     df = pd.DataFrame(dictionary, columns=['ion/atom']+u)
     return df
+
+def ks_test_multi(alphas=[.5, .1, .01, .001])
+    dfs = []
+    for a in alphas:
+        df = ks_test_comparison(alpha=a)
+        dfs.append(df)
+    bigdf = pd.concat(dfs,keys=alphas,axis=0)
+    return bigdf

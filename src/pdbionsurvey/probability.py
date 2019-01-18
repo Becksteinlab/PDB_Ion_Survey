@@ -20,18 +20,33 @@ anions = ['CL', 'I', 'F', 'BR']
 IONNAMES = list(set(newcations).union(set(othercations), set(anions)))
 atoms = ['O', 'N', 'S']
 
-def kolmogorov_smirnov(g1, g2, ylabel='count', cumulative=False):
+def kolmogorov_smirnov(n1, n2, ylabel='count', cumulative=False):
+    """Gives the distances of oxygen atoms from an ion.
+    :Arguments:
+        *n1*
+            pandas.DataFrame first n(r), order does not matter
+        *n2*
+            pandas.DataFrame second n(r), order does not matter
+        *ylabel*
+            String label of axis of interest in n1 and n2
+        *cumulative*
+            Boolean true if n1 and n2 are already cumulative
+    :Returns:
+        *maxdiff*
+            Float valus of kolmogorov-smirnov statistic
+    """
     assert(np.equal(np.array(g1['radius']), np.array(g2['radius'])).all())
     if not cumulative:
-        g1d = np.cumsum(np.array(g1[ylabel]))
-        g2d = np.cumsum(np.array(g2[ylabel]))
+        n1d = np.cumsum(np.array(n1[ylabel]))
+        n2d = np.cumsum(np.array(n2[ylabel]))
     else:
-        g1d = np.array(g1[ylabel])
-        g2d = np.array(g2[ylabel])
-    g1d = g1['count']/max(g1['count'])
-    g2d = g2['count']/max(g2['count'])
-    diff = abs(g2d - g1d)
-    return max(diff)
+        n1d = np.array(n1[ylabel])
+        n2d = np.array(n2[ylabel])
+    n1d = n1['count']/max(n1['count'])
+    n2d = n2['count']/max(n2['count'])
+    diff = abs(n2d - n1d)
+    maxdiff = max(diff)
+    return maxdiff
 
 def cramer_vonmises(g1, g2, ylabel='count', cumulative=False):
     assert(np.equal(np.array(g1['radius']), np.array(g2['radius'])).all())

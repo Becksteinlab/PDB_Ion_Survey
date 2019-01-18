@@ -35,7 +35,7 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
     :Returns:
         *df*
         `pandas.DataFrame` containing resids, resnames, and atom names for each oxygen in the protein file
-"""
+    """
     columns = ['resid', 'resname', 'atomname', 'distance']
 
     if pqr:

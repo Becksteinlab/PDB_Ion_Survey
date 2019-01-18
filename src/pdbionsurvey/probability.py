@@ -28,12 +28,12 @@ def kolmogorov_smirnov(n1, n2, ylabel='count', cumulative=False):
         *n2*
             pandas.DataFrame second n(r), order does not matter
         *ylabel*
-            String label of axis of interest in n1 and n2
+            String label of axis of interest in n1 and n2; default='count'
         *cumulative*
-            Boolean true if n1 and n2 are already cumulative
+            Boolean true if n1 and n2 are already cumulative; default=False
     :Returns:
         *maxdiff*
-            Float valus of kolmogorov-smirnov statistic
+            Float value of kolmogorov-smirnov statistic
     """
     assert(np.equal(np.array(g1['radius']), np.array(g2['radius'])).all())
     if not cumulative:
@@ -48,15 +48,29 @@ def kolmogorov_smirnov(n1, n2, ylabel='count', cumulative=False):
     maxdiff = max(diff)
     return maxdiff
 
-def cramer_vonmises(g1, g2, ylabel='count', cumulative=False):
-    assert(np.equal(np.array(g1['radius']), np.array(g2['radius'])).all())
+def cramer_vonmises(n1, n2, ylabel='count', cumulative=False):
+    """Gives the distances of oxygen atoms from an ion.
+    :Arguments:
+        *n1*
+            pandas.DataFrame first n(r), order does not matter
+        *n2*
+            pandas.DataFrame second n(r), order does not matter
+        *ylabel*
+            String label of axis of interest in n1 and n2; default='count'
+        *cumulative*
+            Boolean true if n1 and n2 are already cumulative; default=False
+    :Returns:
+        *wsquared*
+            Float value of cramer-von_mises statistic
+    """
+    assert(np.equal(np.array(n1['radius']), np.array(n2['radius'])).all())
     if not cumulative:
-        g1d = np.cumsum(np.array(g1[ylabel]))
-        g2d = np.cumsum(np.array(g2[ylabel]))
+        n1d = np.cumsum(np.array(n1[ylabel]))
+        n2d = np.cumsum(np.array(n2[ylabel]))
     else:
-        g1d = np.array(g1[ylabel])
-        g2d = np.array(g2[ylabel])
-    diff = abs(g2d - g1d)
+        n1d = np.array(n1[ylabel])
+        n2d = np.array(n2[ylabel])
+    diff = abs(n2d - n1d)
     squarediff = np.square(diff)
     parts = squarediff*(g1d-np.insert(g1d[:-1], 0, [0]))
     wsquared = np.sum(parts)

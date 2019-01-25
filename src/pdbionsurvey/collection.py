@@ -184,28 +184,3 @@ def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=Fa
     ids = idset.intersection(idsetB)
     ids = list(ids)
     return ids
-
-
-def _make_logger(filename):
-    """Make a logger instance that prints to the screen and writes
-    to `filename`.
-
-    """
-    log = logging.getLogger('PDB_Ions')
-    log.setLevel(logging.WARNING)
-
-    if not any([isinstance(x, logging.StreamHandler) for x in log.handlers]):
-        ch = logging.StreamHandler(sys.stdout)
-        cf = logging.Formatter(
-            '%(name)-12s: %(levelname)-8s %(message)s')
-        ch.setFormatter(cf)
-        log.addHandler(ch)
-
-    if not any([isinstance(x, logging.FileHandler) for x in log.handlers]):
-        fh = logging.FileHandler(filename)
-        ff = logging.Formatter('%(asctime)s %(name)-12s '
-                               '%(levelname)-8s %(message)s')
-        fh.setFormatter(ff)
-        log.addHandler(fh)
-
-    return log

@@ -3,9 +3,9 @@
 # Published under the GPL v3
 # https://github.com/Becksteinlab/PDB_Ion_Survey/
 
-"""
+'''
 Functions for creating sims and analyzing coordination data.
-"""
+'''
 
 from __future__ import absolute_import
 
@@ -26,13 +26,16 @@ from . import coordination
 IONNAMES = ['NA', 'MG', 'K', 'CA', 'V', 'CR', 'MN', 'FE', 'CO', 'NI', 'CU', 'ZN', 'PD', 'AG', 'CD', 'IR', 'PT', 'AU', 'HG', 'LA', 'PB', 'TL', 'LI', 'BA', 'RB', 'CS', 'SR', 'CL', 'IOD', 'F', 'BR']
 
 def make_sims(pdbid, path='sims/'):
-    """Makes a Tree of sims in a path.
+    '''Makes a Tree of sims in a path.
     :Arguments:
         *pdbid*
-            PDB id code
+            String pdb id code
         *path*
-            String path to sims; default = 'sims/'
-    """
+            String path to sims; default='sims/'
+    :Returns:
+        *sim*
+            Sim sim
+    '''
     sim = mds.Sim(os.path.join(path, pdbid))
     i = mmtf.fetch(pdbid)
     u = mda.Universe(i)
@@ -44,17 +47,18 @@ def make_sims(pdbid, path='sims/'):
     return sim
 
 def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
-    """Adds tags and categories to sims.
+    '''Adds tags and categories to sims.
     :Arguments:
         *sim*
-            sim object containing a .pdb file
+            Sim sim containing  a .pdb file
         *ionnames*
-            names of ions for tagging; default = ['Na', 'Li', 'K', 'Tl', 'Cl']
+            List names of ions for tagging; default=IONNAMES
         *project_tags*
-            list of tags to attach to sims; default = ['pdbionsurvey', 'pdbsurvey']
+            List tags to attach to sims; default=['pdbionsurvey', 'pdbsurvey']
         *ligands*
-            boolean value of whether to look for nonamino acid resnames (includes ions); default = True
-    """
+            Boolean true if looking for nonamino acid resnames (includes ions); default=True
+    :Returns:
+    '''
     for tag in project_tags:
         sim.tags.add(tag)
 
@@ -101,12 +105,36 @@ def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurve
         sim.tags.add('funky_dimensions')
 
 def pdb2pqr(sim, pdb2pqrloc='/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py'):
+    '''Converts .pdb file to .pqr file.
+    :Arguments:
+        *sim*
+            Sim sim containing .pdb file
+        *pdb2pqrloc*
+            String location of pdb2pqr; default='/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py'
+    :Returns:
+    '''
     return subprocess.run(pdb2pqrloc +' --ff=charmm --whitespace {} {}'.format(sim.relpath+sim.name+'.pdb', sim.relpath+sim.name+'.pqr'))
 
 def pdb2mol2(sim, lig, babelloc='/usr/bin/babel'):
+    '''Converts .pdb file to .mol2 file.
+    :Arguments:
+        *sim*
+            Sim sim containing .pdb file
+        *babelloc*
+            String location of babel; default='/usr/bin/babel'
+    :Returns:
+    '''
+
     return subprocess.run(babelloc+' {} {}'.format(sim['ligands/'+lig.upper()+'.pdb'], sim['ligands/'+lig.upper()+'.mol2']))
 
 def ligsolution(sim):
+    '''Converts ligs in .pdb file to .mol2 files.
+    :Arguments:
+        *sim*
+            Sim sim containing .pdb and .pqr files
+    :Returns:
+    '''
+
     if not sim[sim.name+'.pqr'].exists:
         return None
     u = mda.Universe(sim[sim.name+'.pdb'].abspath)
@@ -121,6 +149,14 @@ def ligsolution(sim):
         pdb2mol2(sim, lig)
 
 def allligs(sim, allname='all_ligands.pdb'):
+    '''Puts all ligands in .pdb file.
+    :Arguments:
+        *sim*
+            Sim sim containing ligand files
+        *pdb2pqrloc*
+            String desired filename
+    :Returns:
+        '''
     u = mda.Universe(sim[sim.name+'.pdb'].abspath)
     v = None
     if sim['ligands/'].exists:
@@ -135,4 +171,12 @@ def allligs(sim, allname='all_ligands.pdb'):
         v.write(sim[os.path.join('ligands', allname)].abspath)
 
 def pdb2pqrcomplete(sim, pdb2pqrloc='/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py'):
+    '''Converts .pdb file to .pqr file with ligands.
+    :Arguments:
+        *sim*
+            Sim sim containing .pdb file
+        *pdb2pqrloc*
+            String location of pdb2pqr; default='/nfs/packages/opt/Linux_x86_64/pdb2pqr/2.1.1/pdb2pqr.py'
+    :Returns:
+    '''
     return subprocess.run(pdb2pqrloc+' --ff=charmm --ligand {} --whitespace {} {}'.format(sim['ligands/all_ligands.mol2'].relpath, sim[sim.name+'-complete.pdb'].relpath, sim[sim.name+'-withligs.pqr'].relpath))

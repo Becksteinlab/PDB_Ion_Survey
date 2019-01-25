@@ -115,19 +115,18 @@ def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=Fa
     """Searches PDB for files with a specified bound ion.
     :Arguments:
         *ionname*
-            name of desired ion
+            String name of desired ion
         *containsProtein*
-            boolean value of whether to include protein molecules in the search; default = True
+            Boolean true if including protein molecules in the search; default=True
         *containsDNA*
-            boolean value of whether to include DNA molecules in the search; default = False
+            Boolean true if including DNA molecules in the search; default=False
         *containsRNA*
-            boolean value of whether to include RNA molecules in the search; default = False
+            Boolean true if includingRNA molecules in the search; default=False
         *containsHybrid*
-            boolean value of whether to include DNA/RNA hybrid molecules in the search; default = False
+            Boolean true if including DNA/RNA hybrid molecules in the search; default=False
     :Returns:
-        *idlist*
-            ids of all PDB files containing ions with name ionname
-
+        *ids*
+            List ids of all PDB files satisfying input conditions
     -------------------------
     Based off of a function made by William Gilpin
     """

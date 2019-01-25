@@ -16,25 +16,25 @@ import MDAnalysis as mda
 import warnings
 
 def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
-    """Gives the distances of oxygen atoms from an ion.
+    """Gives the distances of atoms from an ion.
     :Arguments:
         *sim*
-            protein Sim
+            Sim protein with .pdb or .pqr file
         *ion*
-            ion Atom
+            Atom ion
         *atomname*
-            string name of atom
+            String name of atom; default='O'
         *atomselection*
-             string selection for coordinating atoms
+            String selection for coordinating atoms; default='name O* and not name OS'
         *maxdistance*
-            maximum distance of interest from the ion; default = 20
+            Float maximum distance of interest from the ion; default=20
         *oxynotprotein*
-            boolean value of whether to include oxygens not in the protein; default = True
+            Boolean true if including oxygens not in the protein; default=True
         *pqr*
-            boolean value of whether to use pqr or pdb; default = False
+            Boolean true if using .pqr file, .pdb else; default=False
     :Returns:
         *df*
-        `pandas.DataFrame` containing resids, resnames, and atom names for each oxygen in the protein file
+            pandas.DataFrame dataframe containing resids, resnames, and atom names for each oxygen in the protein file
     """
     columns = ['resid', 'resname', 'atomname', 'distance']
 
@@ -66,23 +66,25 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
     return df
 
 def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
-    """Gives the distances of oxygen atoms from an ion.
-        :Arguments:
-            *sim*
-                protein Sim
-            *atomname*
-                string name of atom
-            *atomselection*
-                string selection for coordinating atoms
-            *maxdistance*
-                maximum distance of interest from the ion; default = 20
-            *oxynotprotein*
-                boolean value of whether to include oxygens not in the protein; default = True
-            *pqr*
-                boolean value of whether to use pqr or pdb; default = False
-        :Returns:
-            *df*
-                `pandas.DataFrame` containing resids, resnames, and atom names for each oxygen in the protein file
+    """Gives the distances of atoms from an ion in a waterbox.
+    :Arguments:
+        *sim*
+            Sim protein with .pdb or .pqr file
+        *ion*
+            Atom ion
+        *atomname*
+            String name of atom; default='O'
+        *atomselection*
+            String selection for coordinating atoms; default='name O* and not name OS'
+        *maxdistance*
+            Float maximum distance of interest from the ion; default=20
+        *oxynotprotein*
+            Boolean true if including oxygens not in the protein; default=True
+        *pqr*
+            Boolean true if using .pqr file, .pdb else; default=False
+    :Returns:
+        *df*
+            pandas.DataFrame dataframe containing resids, resnames, and atom names for each oxygen in the protein file
     """
     columns = ['resid', 'resname', 'atomname', 'distance']
 
@@ -122,23 +124,21 @@ def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindist
     return dfs
 
 def avg_en(bundle, ionname, atomname='O', binsize=1, nummols=None):
-    '''Produces a graph of density as a function of distance
-        :Arguments:
-            *bundle*
-                bundle of sims
-            *ionname*
-                name of ion of interest
-            *atomname*
-                name of coordinating atom of interest
-            *binsize*
-                size of desired bins for histogram; default = 1
-            *nummols*
-                number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
-        :Returns:
-            *m*
-                midpoints of bins
-            *n*
-                average histogram values
+    '''Gives the average distances of atoms from an ion across a bundle.
+    :Arguments:
+        *bundle*
+            Bundle sims
+        *ionname*
+            String name of ion of interest
+        *atomname*
+            String name of coordinating atom of interest; defaut='O'
+        *binsize*
+            Float size of desired bins for histogram; default=1
+        *nummols*
+            Float number of ions/molecules serving as centers contributing to df, number of files if None; default=None
+    :Returns:
+        *ndf*
+            pd.DataFrame dataframe containing midpoints of bins and average count over bins
     '''
     frames = []
     for sim in bundle:
@@ -161,23 +161,21 @@ def avg_en(bundle, ionname, atomname='O', binsize=1, nummols=None):
     return ndf
 
 def gee(bundle, ionname, atomname='O', binsize=1, nummols=None):
-    '''Produces a graph of density as a function of distance
+    '''Gives the number density of atoms around an ion as a function of distance.
     :Arguments:
         *bundle*
-            bundle of sims
+            Bundle sims
         *ionname*
-            name of ion of interest
+            String name of ion of interest
         *atomname*
-            name of coordinating atom of interest
+            String name of coordinating atom of interest; default='O'
         *binsize*
-            size of desired bins for histogram; default = 1
+            Float size of desired bins for histogram; default=1
         *nummols*
-            number of ions/molecules serving as centers contributing to df; default = None, becomes number of files used
+            Float number of ions/molecules serving as centers contributing to df, number of files if None; default=None
     :Returns:
-        *m*
-            midpoints of bins
-        *density*
-            density histogram values
+        *gdf*
+            pd.DataFrame dataframe containing midpoints of bins and number density over bins
     '''
     frames = []
     for sim in bundle:
@@ -200,20 +198,20 @@ def gee(bundle, ionname, atomname='O', binsize=1, nummols=None):
     return gdf
 
 def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
-    """Finds distances of closest oxygens.
-        :Arguments:
-            *bundle*
-                bundle of sims
-            *ions*
-                string ion name
-            *atom*
-                string coordinating atom name
-            *num_oxy*
-                number of close oxygens of interest; default = 6
-        :Returns:
-            *dfs*
-                list of DataFrames containing distances for the first num_oxy oxygen atoms from the ions in ions
-        """
+    """Gives distances of closest oxygens.
+    :Arguments:
+        *bundle*
+            Bundle sims
+        *ions*
+            String ion name
+        *atom*
+            String coordinating atom name; default='O'
+        *num_oxy*
+            Int number of close atoms of interest; default=6
+    :Returns:
+        *oxys*
+            pd.DataFrame dataframe containing distances for the first num_oxy atoms from the ions in ions
+    """
     c = bundle
 
     z = c[c.tags[ion]]
@@ -229,24 +227,24 @@ def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
     return oxys
 
 def get_peaks(bundle, ionname, mindist=1):
-    """Calculates location of peaks and troughs in g(r)s.
-        :Arguments:
-            *bundle*
-                bundle of sims
-            *ionname*
-                name of ion of interest
-            *mindist*
-                minimum distance between peaks and troughs; default = 1
-        :Returns:
-            *m*
-                midpoints of bins
-            *density*
-                density histogram values
-            *peaks*
-                indexes of peak locations
-            *mins*
-                indexes of minimum locations
-        """
+    """Gives locations of peaks and troughs in g(r)s.
+    :Arguments:
+        *bundle*
+            Bundle sims
+        *ionname*
+            String name of ion of interest
+        *mindist*
+            Float minimum distance between peaks and troughs; default=1
+    :Returns:
+        *m*
+            np.array midpoints of bins
+        *density*
+            np.array density histogram values
+        *peaks*
+            np.array indices of peak locations
+        *mins*
+            np.array indices of minimum locations
+    """
     m, density = coordination.gee(bundle, ionname, binnumber=200)
     x = int(round(mindist / (m[1] - m[0])))
     peaks = peakutils.indexes(density, thres=.1, min_dist=x)
@@ -254,31 +252,43 @@ def get_peaks(bundle, ionname, mindist=1):
     return m, density, peaks, mins
 
 def get_charge(ionname):
+    """Gives locations of peaks and troughs in g(r)s.
+    :Arguments:
+        *ionname*
+            String name of ion of interest
+    :Returns:
+        *num*
+            Int charge of ion
+    """
     if ionname.upper() in ['LI', 'NA', 'K', 'RB', 'CS', 'TL', 'RH', 'AG', 'AU']:
-        return 1
+        num = 1
     elif ionname.upper() in ['MG', 'CA', 'SR', 'BA', 'MN', 'CO', 'NI', 'PD', 'PT', 'CU', 'ZN', 'CD', 'HG', 'PB']:
-        return 2
+        num = 2
     elif ionname.upper() in ['LA',  'V', 'CR', 'FE', 'RU', 'OS', 'AL', 'GA', 'IN', 'SB']:
-        return 3
+        num = 3
     elif ionname.upper() in ['ZR', 'IR']:
-        return 4
+        num = 4
     elif ionname.upper() in ['W']:
-        return 6
+        num = 6
     elif ionname.upper() in ['F', 'CL', 'BR']:
-        return -1
+        num = -1
     elif ionname.upper() in ['IOD', 'I']:
         warnings.warn('Iodide has name I and resname IOD.')
-        return -1
+        num = -1
+    return num
 
 def set_UkT(sim, ionname, ionselection):
     '''
     :Arguments:
         *sim*
-            sim
+            Sim protin
         *ionname*
-            string name of ion
+            String name of ion of interest
         *ionselection*
-            string selection of ion
+            String selection of ion
+    :Returns:
+        *potbysim*
+            List sim name and potential energy
     '''
 
     ioncharge = get_charge(ionname)
@@ -317,4 +327,5 @@ def set_UkT(sim, ionname, ionselection):
     sim.categories[ionname+str(j)+'_U_kT'] = UkT
 
     potens.append(poten)
-    return [sim.name, potens]
+    potbysim = [sim.name, potens]
+    return potbysim

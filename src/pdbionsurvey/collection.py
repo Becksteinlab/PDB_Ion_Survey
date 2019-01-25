@@ -3,9 +3,9 @@
 # Published under the GPL v3
 # https://github.com/Becksteinlab/PDB_Ion_Survey/
 
-"""
+'''
 Functions for querying, downloading, and analyzing ion coordination of PDB structures
-"""
+'''
 
 from __future__ import absolute_import
 
@@ -76,7 +76,7 @@ def _emit(key, value, content_handler, attr_prefix='@', cdata_key='#text', depth
 
 def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
             **kwargs):
-    """Emit an XML document for the given `input_dict`.
+    '''Emit an XML document for the given `input_dict`.
     The resulting XML document is returned as a string, but if `output` (a
     file-like object) is specified, it is written there instead.
     Dictionary keys prefixed with `attr_prefix` (default=`'@'`) are interpreted
@@ -87,7 +87,7 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
     can be customized with the `newl` and `indent` parameters.
     -------------------------
     Credit to: Martin Blech
-    """
+    '''
     if full_document and len(input_dict) != 1:
         raise ValueError('Document must have exactly one root.')
     must_return = False
@@ -112,7 +112,7 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
 
 
 def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=False, containsHybrid=False):
-    """Searches PDB for files with a specified bound ion.
+    '''Searches PDB for files with a specified bound ion.
     :Arguments:
         *ionname*
             String name of desired ion
@@ -129,7 +129,7 @@ def get_pdb_ids(ionname, containsProtein=True, containsDNA=False, containsRNA=Fa
             List ids of all PDB files satisfying input conditions
     -------------------------
     Based off of a function made by William Gilpin
-    """
+    '''
     query_params = dict()
     query_params['queryType'] = 'org.pdb.query.simple.ChemCompIdQuery'
     query_params['chemCompId'] = ionname

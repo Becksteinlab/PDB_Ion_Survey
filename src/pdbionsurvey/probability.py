@@ -1,3 +1,12 @@
+# PDB Ion Survey 
+# Copyright (c) 2016 Kacey Clark
+# Published under the GPL v3
+# https://github.com/Becksteinlab/PDB_Ion_Survey/
+
+'''
+Functions for analyzing coordination functions
+'''
+
 import MDAnalysis as mda
 import mdsynthesis as mds
 from mpl_toolkits.mplot3d import Axes3D
@@ -21,7 +30,7 @@ IONNAMES = list(set(newcations).union(set(othercations), set(anions)))
 atoms = ['O', 'N', 'S']
 
 def kolmogorov_smirnov(n1, n2, ylabel='count', cumulative=False):
-    """Gives the distances of oxygen atoms from an ion.
+    '''Gives the kolmogorov-smirnov statistic between two cumulative normalized discrete functions.
     :Arguments:
         *n1*
             pandas.DataFrame first n(r), order does not matter
@@ -34,7 +43,7 @@ def kolmogorov_smirnov(n1, n2, ylabel='count', cumulative=False):
     :Returns:
         *maxdiff*
             Float value of kolmogorov-smirnov statistic
-    """
+    '''
     assert(np.equal(np.array(g1['radius']), np.array(g2['radius'])).all())
     if not cumulative:
         n1d = np.cumsum(np.array(n1[ylabel]))
@@ -49,7 +58,7 @@ def kolmogorov_smirnov(n1, n2, ylabel='count', cumulative=False):
     return maxdiff
 
 def cramer_vonmises(n1, n2, ylabel='count', cumulative=False):
-    """Gives the distances of oxygen atoms from an ion.
+    '''Gives the smirnov-cramer-vonmises statistic between two cumulative normalized discrete functions.
     :Arguments:
         *n1*
             pandas.DataFrame first n(r), order does not matter
@@ -62,7 +71,7 @@ def cramer_vonmises(n1, n2, ylabel='count', cumulative=False):
     :Returns:
         *wsquared*
             Float value of cramer-von_mises statistic
-    """
+    '''
     assert(np.equal(np.array(n1['radius']), np.array(n2['radius'])).all())
     if not cumulative:
         n1d = np.cumsum(np.array(n1[ylabel]))
@@ -77,10 +86,34 @@ def cramer_vonmises(n1, n2, ylabel='count', cumulative=False):
     return wsquared
 
 def c(alpha):
+    '''Gives the kolmogorov-smirnov statistic between two cumulative normalized discrete functions.
+    :Arguments:
+        *alpha*
+            Float confidence
+    :Returns:
+        *c*
+            Float c
+    '''
     c = np.sqrt(-1/2*np.log(alpha))
     return c
 
 def kolmogorov_smirnov_test(g1, g2, ylabel='count', cumulative=False, alpha=.001):
+    '''Gives the result of the kolmogorov-smirnov test of two cumulative normalized discrete functions.
+    :Arguments:
+        *g1*
+            pandas.DataFrame first n(r), order does not matter
+        *g2*
+            pandas.DataFrame second n(r), order does not matter
+        *ylabel*
+            String label of axis of interest in n1 and n2; default='count'
+        *cumulative*
+            Boolean true if n1 and n2 are already cumulative; default=False
+        *alpha*
+            Float confidence; default=.1
+    :Returns:
+        *res*
+            Boolean true if g1, g2 distinct with alpha confidence
+    '''
     ks = kolmogorov_smirnov(g1, g2, ylabel='count', cumulative=False)
     n1 = len(g1)
     n2 = len(g2)
@@ -88,12 +121,23 @@ def kolmogorov_smirnov_test(g1, g2, ylabel='count', cumulative=False, alpha=.001
     std = calpha * np.sqrt((n1+n2)/(n1*n2))
     if ks > std:
         print('Distinct with ', alpha, 'confidence.')
-        return True
+        res= True
     else:
         print('Not distinct with', alpha, 'confidence.')
-        return False
+        res= False
+    return res
 
 def ks_test_comparison(ionnames=IONNAMES, alpha=1):
+    '''Gives the result of the kolmogorov-smirnov test of g(r)s of O, N, S around many ions.
+    :Arguments:
+        *ionnames*
+            List ionnames to compare; default=IONNAMES
+        *alpha*
+            Float confidence; default=.1
+    :Returns:
+        *bigdf*
+            pd.DataFrame dataframe of kolmogorov-smirnov test results for different ion/atom combinations
+    '''
     ksstats = np.zeros((len(IONNAMES)*3, len(IONNAMES)*3))
     for k in range(len(IONNAMES)):
         for l in range(len(IONNAMES)):

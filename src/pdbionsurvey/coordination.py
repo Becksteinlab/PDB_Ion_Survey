@@ -3,9 +3,9 @@
 # Published under the GPL v3
 # https://github.com/Becksteinlab/PDB_Ion_Survey/
 
-"""
+'''
 Functions for analyzing ion coordination in PDB structures
-"""
+'''
 
 import os.path
 
@@ -16,7 +16,7 @@ import MDAnalysis as mda
 import warnings
 
 def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
-    """Gives the distances of atoms from an ion.
+   '''Gives the distances of atoms from an ion.
     :Arguments:
         *sim*
             Sim protein with .pdb or .pqr file
@@ -35,7 +35,7 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
     :Returns:
         *df*
             pandas.DataFrame dataframe containing resids, resnames, and atom names for each oxygen in the protein file
-    """
+    '''
     columns = ['resid', 'resname', 'atomname', 'distance']
 
     if pqr:
@@ -66,7 +66,7 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
     return df
 
 def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
-    """Gives the distances of atoms from an ion in a waterbox.
+    '''Gives the distances of atoms from an ion in a waterbox.
     :Arguments:
         *sim*
             Sim protein with .pdb or .pqr file
@@ -85,7 +85,7 @@ def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindist
     :Returns:
         *df*
             pandas.DataFrame dataframe containing resids, resnames, and atom names for each oxygen in the protein file
-    """
+    '''
     columns = ['resid', 'resname', 'atomname', 'distance']
 
     if pqr:
@@ -198,7 +198,7 @@ def gee(bundle, ionname, atomname='O', binsize=1, nummols=None):
     return gdf
 
 def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
-    """Gives distances of closest oxygens.
+    '''Gives distances of closest oxygens.
     :Arguments:
         *bundle*
             Bundle sims
@@ -211,7 +211,7 @@ def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
     :Returns:
         *oxys*
             pd.DataFrame dataframe containing distances for the first num_oxy atoms from the ions in ions
-    """
+    '''
     c = bundle
 
     z = c[c.tags[ion]]
@@ -227,7 +227,7 @@ def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
     return oxys
 
 def get_peaks(bundle, ionname, mindist=1):
-    """Gives locations of peaks and troughs in g(r)s.
+    '''Gives locations of peaks and troughs in g(r)s.
     :Arguments:
         *bundle*
             Bundle sims
@@ -244,7 +244,7 @@ def get_peaks(bundle, ionname, mindist=1):
             np.array indices of peak locations
         *mins*
             np.array indices of minimum locations
-    """
+    '''
     m, density = coordination.gee(bundle, ionname, binnumber=200)
     x = int(round(mindist / (m[1] - m[0])))
     peaks = peakutils.indexes(density, thres=.1, min_dist=x)
@@ -252,14 +252,14 @@ def get_peaks(bundle, ionname, mindist=1):
     return m, density, peaks, mins
 
 def get_charge(ionname):
-    """Gives locations of peaks and troughs in g(r)s.
+    '''Gives locations of peaks and troughs in g(r)s.
     :Arguments:
         *ionname*
             String name of ion of interest
     :Returns:
         *num*
             Int charge of ion
-    """
+    '''
     if ionname.upper() in ['LI', 'NA', 'K', 'RB', 'CS', 'TL', 'RH', 'AG', 'AU']:
         num = 1
     elif ionname.upper() in ['MG', 'CA', 'SR', 'BA', 'MN', 'CO', 'NI', 'PD', 'PT', 'CU', 'ZN', 'CD', 'HG', 'PB']:
@@ -278,10 +278,10 @@ def get_charge(ionname):
     return num
 
 def set_UkT(sim, ionname, ionselection):
-    '''
+    '''Gives potential energy of sim.
     :Arguments:
         *sim*
-            Sim protin
+            Sim protein
         *ionname*
             String name of ion of interest
         *ionselection*

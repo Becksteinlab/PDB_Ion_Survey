@@ -17,7 +17,6 @@ import datreant as dtr
 import MDAnalysis as mda
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import peakutils
 import mmtf
 

@@ -123,7 +123,7 @@ def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindist
 
     return dfs
 
-def avg_en(bundle, ionname, atomname='O', binsize=1, nummols=None):
+def avg_en(bundle, ionname, atomname='O', binsize=.1, nummols=None):
     '''Gives the average distances of atoms from an ion across a bundle.
     :Arguments:
         *bundle*
@@ -133,7 +133,7 @@ def avg_en(bundle, ionname, atomname='O', binsize=1, nummols=None):
         *atomname*
             String name of coordinating atom of interest; defaut='O'
         *binsize*
-            Float size of desired bins for histogram; default=1
+            Float size of desired bins for histogram; default=.1
         *nummols*
             Float number of ions/molecules serving as centers contributing to df, number of files if None; default=None
     :Returns:
@@ -160,7 +160,7 @@ def avg_en(bundle, ionname, atomname='O', binsize=1, nummols=None):
 
     return ndf
 
-def gee(bundle, ionname, atomname='O', binsize=1, nummols=None):
+def gee(bundle, ionname, atomname='O', binsize=.1, nummols=None):
     '''Gives the number density of atoms around an ion as a function of distance.
     :Arguments:
         *bundle*
@@ -170,7 +170,7 @@ def gee(bundle, ionname, atomname='O', binsize=1, nummols=None):
         *atomname*
             String name of coordinating atom of interest; default='O'
         *binsize*
-            Float size of desired bins for histogram; default=1
+            Float size of desired bins for histogram; default=.1
         *nummols*
             Float number of ions/molecules serving as centers contributing to df, number of files if None; default=None
     :Returns:

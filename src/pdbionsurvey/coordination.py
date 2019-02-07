@@ -16,7 +16,7 @@ import MDAnalysis as mda
 import warnings
 
 def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
-   '''Gives the distances of atoms from an ion.
+    '''Gives the distances of atoms from an ion.
     :Arguments:
         *sim*
             Sim protein with .pdb or .pqr file

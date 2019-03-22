@@ -41,7 +41,7 @@ def en(prot, ion, atomname='O', atomselection='name O* and not name OS', mindist
     if pqr:
         protein = mda.Universe(prot[prot.name+'.pqr'].abspath)
     else:
-        protein = mda.Universe(prot[prot.name+'.pqr'].abspath)
+        protein = mda.Universe(prot[prot.name+'.pdb'].abspath)
 
     if oxynotprotein:
         oxy = protein.select_atoms(atomselection)

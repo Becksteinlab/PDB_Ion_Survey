@@ -15,11 +15,11 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 import warnings
 
-def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
+def en(prot, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
     '''Gives the distances of atoms from an ion.
     :Arguments:
-        *sim*
-            Sim protein with .pdb or .pqr file
+        *prot*
+            Treant protein with .pdb or .pqr file
         *ion*
             Atom ion
         *atomname*
@@ -39,9 +39,9 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
     columns = ['resid', 'resname', 'atomname', 'distance']
 
     if pqr:
-        protein = mda.Universe(sim[sim.name+'.pqr'].abspath)
+        protein = mda.Universe(prot[prot.name+'.pqr'].abspath)
     else:
-        protein = mda.Universe(sim[sim.name+'.pqr'].abspath)
+        protein = mda.Universe(prot[prot.name+'.pqr'].abspath)
 
     if oxynotprotein:
         oxy = protein.select_atoms(atomselection)
@@ -60,16 +60,16 @@ def en(protein, ion, atomname='O', atomselection='name O* and not name OS', mind
     df = df[df['distance'] > mindistance]
     df = df.reset_index()[columns]
 
-    sim['coordination/'+ion.name+'/'+atomname+'/'].make()
-    df.to_csv(sim['coordination/'+ion.name+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
+    prot['coordination/'+ion.name+'/'+atomname+'/'].make()
+    df.to_csv(prot['coordination/'+ion.name+'/'+atomname+'/{}.csv'.format(ion.index)].abspath)
     
     return df
 
-def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
+def water_en(prot, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
     '''Gives the distances of atoms from an ion in a waterbox.
     :Arguments:
-        *sim*
-            Sim protein with .pdb or .pqr file
+        *prot*
+            Treant protein with .pdb or .pqr file
         *ion*
             Atom ion
         *atomname*
@@ -89,9 +89,9 @@ def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindist
     columns = ['resid', 'resname', 'atomname', 'distance']
 
     if pqr:
-        protein = mda.Universe(sim[sim.name+'.pqr'].abspath)
+        protein = mda.Universe(prot[prot.name+'.pqr'].abspath)
     else:
-        protein = mda.Universe(sim[sim.name+'.pqr'].abspath)
+        protein = mda.Universe(prot[prot.name+'.pqr'].abspath)
 
     if oxynotprotein:
         oxy = protein.select_atoms(atomselection)
@@ -100,7 +100,7 @@ def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindist
 
     origins = protein.select_atoms('resname HOH')
 
-    sim['coordination/WATER/'+atomname+'/'].make()
+    prot['coordination/WATER/'+atomname+'/'].make()
 
     dfs = []
 
@@ -119,7 +119,7 @@ def water_en(sim, atomname='O', atomselection='name O* and not name OS', mindist
         df = df[df['distance'] > mindistance]
         df = df.reset_index()[columns]
 
-        df.to_csv(sim['coordination/WATER/'+atomname+'/{}.csv'.format(origin.index)].abspath)
+        df.to_csv(prot['coordination/WATER/'+atomname+'/{}.csv'.format(origin.index)].abspath)
 
     return dfs
 
@@ -127,7 +127,7 @@ def avg_en(bundle, ionname, atomname='O', binsize=.1, nummols=None):
     '''Gives the average distances of atoms from an ion across a bundle.
     :Arguments:
         *bundle*
-            Bundle sims
+            Bundle treants
         *ionname*
             String name of ion of interest
         *atomname*
@@ -141,8 +141,8 @@ def avg_en(bundle, ionname, atomname='O', binsize=.1, nummols=None):
             pd.DataFrame dataframe containing midpoints of bins and average count over bins
     '''
     frames = []
-    for sim in bundle:
-        for csv in sim.glob('coordination/'+ionname.upper()+'/'+atomname+'/*.csv'):
+    for tre in bundle:
+        for csv in tre.glob('coordination/'+ionname.upper()+'/'+atomname+'/*.csv'):
             df = pd.read_csv(csv.abspath)
             frames.append(df)
 
@@ -164,7 +164,7 @@ def gee(bundle, ionname, atomname='O', binsize=.1, nummols=None):
     '''Gives the number density of atoms around an ion as a function of distance.
     :Arguments:
         *bundle*
-            Bundle sims
+            Bundle treants
         *ionname*
             String name of ion of interest
         *atomname*
@@ -178,8 +178,8 @@ def gee(bundle, ionname, atomname='O', binsize=.1, nummols=None):
             pd.DataFrame dataframe containing midpoints of bins and number density over bins
     '''
     frames = []
-    for sim in bundle:
-        for csv in sim.glob('coordination/'+ionname.upper()+'/'+atomname+'/*.csv'):
+    for tre in bundle:
+        for csv in tre.glob('coordination/'+ionname.upper()+'/'+atomname+'/*.csv'):
             df = pd.read_csv(csv.abspath)
             frames.append(df)
 
@@ -201,7 +201,7 @@ def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
     '''Gives distances of closest oxygens.
     :Arguments:
         *bundle*
-            Bundle sims
+            Bundle treants
         *ions*
             String ion name
         *atom*
@@ -216,11 +216,11 @@ def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
 
     z = c[c.tags[ion]]
     oxy = []
-    for sim in z:
-        for csv in sim.glob('coordination/'+ion.upper()+'/'+atom+'/*.csv'):
+    for tre in z:
+        for csv in tre.glob('coordination/'+ion.upper()+'/'+atom+'/*.csv'):
             df = pd.read_csv(csv.abspath)
             df = df.sort_values('distance').iloc[:num_oxy]['distance'].values.reshape(1, -1)
-            index = '{}_{}'.format(sim.name, csv.name.replace('.csv', ''))
+            index = '{}_{}'.format(tre.name, csv.name.replace('.csv', ''))
             oxy.append(pd.DataFrame(df, columns=range(1, num_oxy+1), index=[index]))
     oxys = pd.concat(oxy)
 
@@ -230,7 +230,7 @@ def get_peaks(bundle, ionname, mindist=1):
     '''Gives locations of peaks and troughs in g(r)s.
     :Arguments:
         *bundle*
-            Bundle sims
+            Bundle treants
         *ionname*
             String name of ion of interest
         *mindist*
@@ -277,26 +277,26 @@ def get_charge(ionname):
         num = -1
     return num
 
-def set_UkT(sim, ionname, ionselection):
-    '''Gives potential energy of sim.
+def set_UkT(prot, ionname, ionselection):
+    '''Gives potential energy of protein.
     :Arguments:
-        *sim*
-            Sim protein
+        *prot*
+            Treant protein
         *ionname*
             String name of ion of interest
         *ionselection*
             String selection of ion
     :Returns:
-        *potbysim*
-            List sim name and potential energy
+        *potbyprot*
+            List protein name and potential energy
     '''
 
     ioncharge = get_charge(ionname)
-    if not sim[sim.name+'.pqr'].exists:
+    if not prot[prot.name+'.pqr'].exists:
         return None
 
-    u = mda.Universe(sim[sim.name+'.pdb'].abspath)
-    u2 = mda.Universe(sim[sim.name+'.pqr'].abspath)
+    u = mda.Universe(prot[prot.name+'.pdb'].abspath)
+    u2 = mda.Universe(prot[prot.name+'.pqr'].abspath)
 
     ions = u.select_atoms(ionselection)
     atoms = u2.atoms
@@ -324,8 +324,8 @@ def set_UkT(sim, ionname, ionselection):
 
     UkT = potenergy/kT
 
-    sim.categories[ionname+str(j)+'_U_kT'] = UkT
+    prot.categories[ionname+str(j)+'_U_kT'] = UkT
 
     potens.append(poten)
-    potbysim = [sim.name, potens]
-    return potbysim
+    potbyprot = [prot.name, potens]
+    return potbyprot

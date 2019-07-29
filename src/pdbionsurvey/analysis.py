@@ -24,28 +24,30 @@ from . import coordination
 
 IONNAMES = ['NA', 'MG', 'K', 'CA', 'V', 'CR', 'MN', 'FE', 'CO', 'NI', 'CU', 'ZN', 'PD', 'AG', 'CD', 'IR', 'PT', 'AU', 'HG', 'LA', 'PB', 'TL', 'LI', 'BA', 'RB', 'CS', 'SR', 'CL', 'IOD', 'F', 'BR']
 
-def make_sims(pdbid, path='sims/'):
-    '''Makes a Tree of sims in a path.
+def make_treants(pdbid, path='proteins/'):
+    '''Makes a Tree of treants in a path.
     :Arguments:
         *pdbid*
             String pdb id code
         *path*
-            String path to sims; default='sims/'
-    :Returns:
-        *sim*
-            Sim sim
+            String path to treants; default='proteins/'
     '''
-    sim = mds.Sim(os.path.join(path, pdbid))
-    i = mmtf.fetch(pdbid)
-    u = mda.Universe(i)
-    u.atoms.write(os.path.join(sim.abspath, pdbid+'.pdb'), bonds=None)
-    try:
-        sim.categories['resolution'] = i.resolution
-    except:
-        sim.categories['resolution'] = 'N/A'
-    return sim
-
-def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
+    tree = dtr.Tree(protdir.abspath+pdbid)
+    prot = mmtf.fetch(pdbid)
+    u = mda.Universe(prot)
+    for i, mod in enumerate(u.models):
+        tre = dtr.Treant(tree.abspath+pdbid+str(i))
+        mod.atoms.write(tre.abspath+pdbid+str(i)+'.pdb', bonds=None)
+        if prot.resolution:
+            tre.categories['resolution'] = prot.resolution
+        else:
+            tre.categories['resolution'] = 'N/A'
+        tre.categories['total_models'] = len(u.models)
+        tre.tags.add(pdbid)
+        tre.categories['pdbid'] = pdbid
+        tre.categories['model_num'] = i
+                                                                                
+                                                                                def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
     '''Adds tags and categories to sims.
     :Arguments:
         *sim*

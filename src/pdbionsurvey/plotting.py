@@ -89,18 +89,13 @@ def getbins(num):
         ts = .1
     return ts
 
-def make_dees(ionname, atomnames=ATOMNAMES, bs=.1, mindistance=True, maxdistance=15):
+def make_dees(ionname, atomnames=ATOMNAMES, bs=.1, maxdistance=15):
     for atomname in atomnames:
         print('started g '+ionname+' with '+atomname)
         gdf = pdbionsurvey.coordination.gee(b, ionname, atomname=atomname, binsize=bs)
         gdf = gdf[gdf['radius'] < maxdistance]
         print('made g '+ionname+' with '+atomname)
-        if not mindistance:
-            gdf.to_csv(csvpath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
-        else:
-            mindistance = .5
-            gdf['density'][gdf['radius'] < mindistance] = 0
-            gdf.to_csv(csvpath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-withmin.csv')
+        gdf.to_csv(csvpath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
         print('saved g '+ionname+' with '+atomname)
 #         fig = plt.figure(figsize=(4,3))
 #         ax = fig.add_subplot(111)
@@ -125,7 +120,7 @@ def make_gees(ionname, atomname='O', maxdistance=5, bs=.1, bundle=b, path=csvpat
     fig1.set_tight_layout(True)
     print('started g '+ionname+' with '+atomname)
     mindistance = .5
-    gdf = pd.read_csv(path.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-withmin.csv')
+    gdf = pd.read_csv(path.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
     gdf['density'][gdf['radius'] < mindistance] = 0
     gdf = gdf[gdf['radius'] < maxdistance]
     ax.plot(gdf['radius'], gdf['density'], label=propernames[ionname], linewidth=2)
@@ -330,9 +325,10 @@ def plot_together_bylig(ionnames, maxdistance=5, bs=.1):
         ax1 = fig1.add_subplot(111)
         fig1.set_tight_layout(True)
         ys = []
+        mindistance=.5
         for ionname in ionnames:
             print('started g '+ionname+' with '+atomname)
-            gdf = pd.read_csv('d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-withmin.csv')
+            gdf = pd.read_csv(csvpath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
             gdf = gdf[gdf['radius'] < maxdistance]
             gdf['density'][gdf['radius'] < mindistance] = 0
             ax.plot(gdf['radius'], gdf['density'], label=propernames[ionname], linewidth=2)
@@ -341,6 +337,7 @@ def plot_together_bylig(ionnames, maxdistance=5, bs=.1):
             ys.append(max(y))
         ax.set_xlabel(r'distance ($\mathrm{\AA}$)')
         ax.set_ylabel(r'density ($\mathrm{\AA}^{-3}$)')
+        ts = getbins(ax.get_xlim()[1])
         ax.xaxis.set_major_locator(MultipleLocator(5*ts))
         ax.xaxis.set_minor_locator(MultipleLocator(ts))
         sns.despine(offset=10, ax=ax)
@@ -380,7 +377,7 @@ def plot_together_byion(ionname, atomnames=['O', 'N', 'S', 'C'], maxdistance=5, 
     mindistance = .5
     for atomname in atomnames:
         print('started g '+ionname+' with '+atomname)
-        gdf = pd.read_csv(path.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-withmin.csv')
+        gdf = pd.read_csv(path.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
         gdf = gdf[gdf['radius'] < maxdistance]
         gdf['density'][gdf['radius'] < mindistance] = 0
         y = gdf['density']/bulkdensity[atomname]
@@ -428,7 +425,7 @@ def plot_together_byion_onaxes(ionname, atomnames=['O', 'N', 'S', 'C'], maxdista
     mindistance = .5
     for atomname in atomnames:
         print('started g '+ionname+' with '+atomname)
-        gdf = pd.read_csv(path.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-withmin.csv')
+        gdf = pd.read_csv(path.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
         gdf = gdf[gdf['radius'] < maxdistance]
         gdf['density'][gdf['radius'] < mindistance] = 0
         y = gdf['density']/bulkdensity[atomname]
@@ -507,13 +504,14 @@ def make_gees_byres_df(ionname, atomname='O', reses=RESES, bundle=b, path=csvpat
 
     print('not na done')
 
-    for res in reses:
-        try:
-            gdf = pdbionsurvey.coordination.gee(bundle, ionname, atomname=atomname, binsize=bs)
-            gdf['density'] = gdf['density']/bulkdensity[atomname]
-            gdfs['res<='+str(res)] = gdf['density']
-        except ValueError:
-            pass
+    if reses is not None:
+        for res in reses:
+            try:
+                gdf = pdbionsurvey.coordination.gee(bundle, ionname, atomname=atomname, binsize=bs)
+                gdf['density'] = gdf['density']/bulkdensity[atomname]
+                gdfs['res<='+str(res)] = gdf['density']
+            except ValueError:
+                pass
 
     print('reses done')
 
@@ -535,9 +533,15 @@ def make_gees_byres(ionname, atomname='O', reses = RESES, maxdistance=5, mindist
     ys = []
 
     if naexists:
-        reslabels = ['any', 'unknown', 'known'] + ['res<='+str(res) for res in reses]
+        if reses is not None:
+            reslabels = ['any', 'unknown', 'known'] + ['res<='+str(res) for res in reses]
+        else:
+            reslabels = ['any', 'unknown', 'known']
     else:
-        reslabels = ['any'] + ['res<='+str(res) for res in reses]
+        if reses is not None:
+            reslabels = ['any'] + ['res<='+str(res) for res in reses]
+        else:
+            reslabels = ['any']
     for reslabel in reslabels:
         try:
             gdf[reslabel][gdf['radius'] < mindistance] = 0
@@ -563,27 +567,5 @@ def make_gees_byres(ionname, atomname='O', reses = RESES, maxdistance=5, mindist
     ax.plot(ax.get_xlim(), [1, 1], color=(0,0,0), ls='dotted', alpha=.5)
     sns.despine(offset=10, ax=ax1)
     ax.legend()
-    ax.figure.savefig(impath.abspath+'g-byres-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-'+str(maxdistance)+'-(any_known_unknown'+'_'.join(str(reses))+').png')
+    ax.figure.savefig(path.abspath+'g-byres-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-'+str(maxdistance)+'-(any_known_unknown'+'_'.join(str(reses))+').png')
     ax.figure.savefig(impath.abspath+'g-byres-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-'+str(maxdistance)+'-(any_known_unknown'+'_'.join(str(reses))+').pdf')
-
-for bs in [.1, .2, .3, .4]:
-    for ion in IONNAMES:
-	    #print(str(bs), ion)
-        make_dees(ion, bs=bs)
-        for md in [5, 10, 15]:
-			#print(str(bs), ion, str(md))
-            plot_together_byion(ion, atomnames=['O', 'N'], maxdistance=md, bs=bs)
-            plot_together_byion(ion, atomnames=['O', 'N', 'S'], maxdistance=md, bs=bs)
-            plot_together_byion(ion, atomnames=['O', 'N', 'S', 'C'], maxdistance=md, bs=bs)
-            plot_together_byion_onaxes(ion, atomnames=['O', 'N', 'S', 'C'], maxdistance=md, bs=bs)
-            for atom in ATOMNAMES:
-				#print(str(bs), ion, str(md), atom)
-                make_gees(ion, atomname=atom, bs=bs, maxdistance=md)
-                make_gees_byres(ion, atomname=atom, bs=bs, maxdistance=md, reses=[])
-                make_gees_byres(ion, atomname=atom, bs=bs, maxdistance=md)
-    for ionnames in x:
-        for md in [5, 10, 15]:
-			#print(ionnames, md)
-            plot_together_bylig(ionnames, maxdistance=md, bs=bs)
-
-print('ALL DONE!')

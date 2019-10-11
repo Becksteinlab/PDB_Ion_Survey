@@ -53,12 +53,12 @@ ATOMNAMES = ['O', 'N', 'S', 'C']
 
 sel = {'O': 'name O* and not name OS', 'N': 'name N* and not name NA and not name NE', 'S': 'name S* and not name SB', 'C': 'name C* and not name CS and not resname CA'}
 
-obulk = 0.00947
-nbulk = 0.00609
-sbulk = 0.000196
-cbulk = 0.0234
+oavg = 0.00947
+navg = 0.00609
+savg = 0.000196
+cavg = 0.0234
 
-bulkdensity = {'O': obulk, 'N': nbulk, 'S': sbulk, 'C': cbulk}
+avgdensity = {'O': oavg, 'N': navg, 'S': savg, 'C': cavg}
 
 # directory for the pdbs
 PATH = dtr.Tree('/nfs/homes3/kreidy/Projects/pdbsurvey/')
@@ -140,7 +140,7 @@ def make_gees(ionname, atomname='O', maxdistance=5, bs=.1, bundle=b, path=csvpat
     ax.figure.savefig(impath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-'+str(maxdistance)+'.png')
     ax.figure.savefig(impath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-'+str(maxdistance)+'.pdf')
 
-    y = gdf['density']/bulkdensity[atomname]
+    y = gdf['density']/avgdensity[atomname]
     ax1.plot(gdf['radius'], y, label=propernames[ionname], linewidth=2)
 
     yts = getbins(max(y))
@@ -177,7 +177,7 @@ def make_gees_bytech_df(ionname, atomname='O', bs=.1, methods=METHODS, label='to
         try:
             tempbundle = bundle[bundle.tags[tech]]
             gdf = pdbionsurvey.coordination.gee(tempbundle, ionname, atomname=atomname, binsize=bs)
-            gdf['density'] = gdf['density']/bulkdensity[atomname]
+            gdf['density'] = gdf['density']/avgdensity[atomname]
             gdfs[tech] = gdf['density']
             if not raddone:
                 gdfs['radius'] = gdf['radius']
@@ -247,7 +247,7 @@ def make_gees_bytech_df_smallbunds(ionname, atomname='O', bs=.1, methods=None, l
             try:
                 tempbundle = bundle[bundle.tags[tech]]
                 gdf = pdbionsurvey.coordination.gee(tempbundle, ionname, atomname=atomname, binsize=bs)
-                gdf['density'] = gdf['density']/bulkdensity[atomname]
+                gdf['density'] = gdf['density']/avgdensity[atomname]
                 gdfs[tech] = gdf['density']
                 if not raddone:
                     gdfs['radius'] = gdf['radius']
@@ -332,7 +332,7 @@ def plot_together_bylig(ionnames, maxdistance=5, bs=.1):
             gdf = gdf[gdf['radius'] < maxdistance]
             gdf['density'][gdf['radius'] < mindistance] = 0
             ax.plot(gdf['radius'], gdf['density'], label=propernames[ionname], linewidth=2)
-            y = gdf['density']/bulkdensity[atomname]
+            y = gdf['density']/avgdensity[atomname]
             ax1.plot(gdf['radius'], y, label=propernames[ionname], linewidth=2)
             ys.append(max(y))
         ax.set_xlabel(r'distance ($\mathrm{\AA}$)')
@@ -380,7 +380,7 @@ def plot_together_byion(ionname, atomnames=['O', 'N', 'S', 'C'], maxdistance=5, 
         gdf = pd.read_csv(path.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
         gdf = gdf[gdf['radius'] < maxdistance]
         gdf['density'][gdf['radius'] < mindistance] = 0
-        y = gdf['density']/bulkdensity[atomname]
+        y = gdf['density']/avgdensity[atomname]
         if atomname == 'C':
             ax.plot(gdf['radius'], gdf['density'], label=atomname, alpha=.5, linewidth=2)
             ax1.plot(gdf['radius'], y, label=atomname, alpha=.5, linewidth=2)
@@ -428,7 +428,7 @@ def plot_together_byion_onaxes(ionname, atomnames=['O', 'N', 'S', 'C'], maxdista
         gdf = pd.read_csv(path.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
         gdf = gdf[gdf['radius'] < maxdistance]
         gdf['density'][gdf['radius'] < mindistance] = 0
-        y = gdf['density']/bulkdensity[atomname]
+        y = gdf['density']/avgdensity[atomname]
         if atomname == 'C':
             ax.plot(gdf['radius'], gdf['density'], label=atomname, alpha=.5, linewidth=2)
             ax1.plot(gdf['radius'], y, label=atomname, alpha=.5, linewidth=2)
@@ -478,7 +478,7 @@ def make_gees_byres_df(ionname, atomname='O', reses=RESES, bundle=b, path=csvpat
 
     try:
         gdfany = pdbionsurvey.coordination.gee(bundle, ionname, atomname=atomname, binsize=bs)
-        gdfany['density'] = gdfany['density']/bulkdensity[atomname]
+        gdfany['density'] = gdfany['density']/avgdensity[atomname]
         gdfs['any'] = gdfany['density']
     except ValueError:
         pass
@@ -487,7 +487,7 @@ def make_gees_byres_df(ionname, atomname='O', reses=RESES, bundle=b, path=csvpat
 
     try:
         gdfna = pdbionsurvey.coordination.gee(resna, ionname, atomname=atomname, binsize=bs)
-        gdfna['density'] = gdfna['density']/bulkdensity[atomname]
+        gdfna['density'] = gdfna['density']/avgdensity[atomname]
         gdfs['unknown'] = gdfna['density']
     except ValueError:
         naexists = False
@@ -497,7 +497,7 @@ def make_gees_byres_df(ionname, atomname='O', reses=RESES, bundle=b, path=csvpat
 
     try:
         gdfnotna = pdbionsurvey.coordination.gee(bund, ionname, atomname=atomname, binsize=bs)
-        gdfnotna['density'] = gdfnotna['density']/bulkdensity[atomname]
+        gdfnotna['density'] = gdfnotna['density']/avgdensity[atomname]
         gdfs['known'] = gdfnotna['density']
     except ValueError:
         pass
@@ -508,7 +508,7 @@ def make_gees_byres_df(ionname, atomname='O', reses=RESES, bundle=b, path=csvpat
         for res in reses:
             try:
                 gdf = pdbionsurvey.coordination.gee(bundle, ionname, atomname=atomname, binsize=bs)
-                gdf['density'] = gdf['density']/bulkdensity[atomname]
+                gdf['density'] = gdf['density']/avgdensity[atomname]
                 gdfs['res<='+str(res)] = gdf['density']
             except ValueError:
                 pass

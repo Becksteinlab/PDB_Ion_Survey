@@ -81,11 +81,11 @@ def getbins(num):
     ts = int(num/10)
     if ts == 0:
         ts = num/10
-    if ts < 1 and ts >= .5:
+    if .2 < ts <= .5:
         ts = .5
-    elif ts < .5 and ts >= .2:
+    elif .1 < ts <= .2:
         ts = .2
-    elif ts < .2:
+    elif ts < .1:
         ts = .1
     return ts
 

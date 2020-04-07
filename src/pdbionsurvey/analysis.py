@@ -46,8 +46,8 @@ def make_treants(pdbid, path='proteins/'):
         tre.tags.add(pdbid)
         tre.categories['pdbid'] = pdbid
         tre.categories['model_num'] = i
-                                                                                
-                                                                                def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
+
+def sim_labeling(sim, ionnames=IONNAMES, project_tags=['pdbionsurvey', 'pdbsurvey'], ligands=True):
     '''Adds tags and categories to sims.
     :Arguments:
         *sim*

@@ -91,12 +91,12 @@ def getbins(num):
 
 def make_dees(ionname, atomnames=ATOMNAMES, bs=.1, maxdistance=15):
     for atomname in atomnames:
-        print('started g '+ionname+' with '+atomname)
+        print('started d '+ionname+' with '+atomname)
         gdf = pdbionsurvey.coordination.gee(b, ionname, atomname=atomname, binsize=bs)
         gdf = gdf[gdf['radius'] < maxdistance]
-        print('made g '+ionname+' with '+atomname)
+        print('made d '+ionname+' with '+atomname)
         gdf.to_csv(csvpath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
-        print('saved g '+ionname+' with '+atomname)
+        print('saved d '+ionname+' with '+atomname)
 #         fig = plt.figure(figsize=(4,3))
 #         ax = fig.add_subplot(111)
 #         fig.set_tight_layout(True)

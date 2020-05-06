@@ -197,6 +197,20 @@ def gee(bundle, ionname, atomname='O', binsize=.1, nummols=None):
 
     return gdf
 
+def make_dees(ionname, atomnames=ATOMNAMES, bs=.1, mindistance=True, maxdistance=15, ts=1):
+    for atomname in atomnames:
+        print('started g '+ionname+' with '+atomname)
+        gdf = pdbionsurvey.coordination.gee(b, ionname, atomname=atomname, binsize=bs)
+        gdf = gdf[gdf['radius'] < maxdistance]
+        print('made g '+ionname+' with '+atomname)
+        if not mindistance:
+            gdf.to_csv(csvpath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')
+        else:
+            mindistance = .5
+            gdf['density'] = [gdf['density'][i] if gdf['radius'][i]>mindistance else 0 for i in range(len(gdf['density']))]
+            gdf.to_csv(csvpath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins-withmin.csv')
+        print('saved g '+ionname+' with '+atomname)
+
 def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
     '''Gives distances of closest oxygens.
     :Arguments:

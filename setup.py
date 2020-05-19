@@ -29,5 +29,5 @@ setup(name='pdbionsurvey',
       scripts=[],
       license='GPLv3',
       long_description=open('README.md').read(),
-      install_requires=['numpy', 'pandas', 'MDAnalysis', 'datreant', 'peakutils', 'matplotlib', 'seaborn', 'json', 'scipy', 'mmtf']
+      install_requires=['numpy', 'pandas', 'MDAnalysis', 'datreant', 'peakutils', 'matplotlib', 'seaborn', 'scipy']
       )

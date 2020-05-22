@@ -197,6 +197,8 @@ def gee(bundle, ionname, atomname='O', binsize=.1, nummols=None):
 
     return gdf
 
+ATOMNAMES = ['O', 'N', 'S', 'C']
+
 def make_dees(ionname, atomnames=ATOMNAMES, bs=.1, mindistance=True, maxdistance=15, ts=1):
     for atomname in atomnames:
         print('started g '+ionname+' with '+atomname)

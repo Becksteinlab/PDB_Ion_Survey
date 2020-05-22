@@ -160,7 +160,7 @@ def avg_en(bundle, ionname, atomname='O', binsize=.1, nummols=None):
 
     return ndf
 
-def gee(bundle, ionname, atomname='O', binsize=.1, nummols=None):
+def dee(bundle, ionname, atomname='O', binsize=.1, nummols=None):
     '''Gives the number density of atoms around an ion as a function of distance.
     :Arguments:
         *bundle*

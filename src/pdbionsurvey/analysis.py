@@ -12,7 +12,6 @@ from __future__ import absolute_import
 import os
 import subprocess
 
-import mdsynthesis as mds
 import datreant as dtr
 import MDAnalysis as mda
 import numpy as np

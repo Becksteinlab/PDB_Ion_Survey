@@ -29,6 +29,8 @@ import warnings
 plt.style.use('ggplot')
 sns.set_style('ticks')
 
+ATOMNAMES = ['O', 'N', 'S', 'C']
+
 def get_coord_num(ionname, atomname='O', bs=.1, mindistance=True, thres=.1):
     if not mindistance:
         df = pd.read_csv(csvpath.abspath+'d-'+ionname+'-'+atomname+'-'+str(int(bs*100))+'pmbins.csv')

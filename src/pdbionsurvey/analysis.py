@@ -16,7 +16,6 @@ import datreant as dtr
 import MDAnalysis as mda
 import numpy as np
 import pandas as pd
-import peakutils
 import mmtf
 
 from . import coordination

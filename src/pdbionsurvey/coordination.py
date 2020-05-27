@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 import warnings
 
-def en(prot, ion, atomname='O', atomselection='name O* and not name OS', mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
+def en(prot, ion, atomname='O', atomselection=None, mindistance=.5, maxdistance=20, oxynotprotein=True, periodic=True, pqr=False):
     '''Gives the distances of atoms from an ion.
     :Arguments:
         *prot*
@@ -25,7 +25,7 @@ def en(prot, ion, atomname='O', atomselection='name O* and not name OS', mindist
         *atomname*
             String name of atom; default='O'
         *atomselection*
-            String selection for coordinating atoms; default='name O* and not name OS'
+            String selection for coordinating atoms; default=None
         *maxdistance*
             Float maximum distance of interest from the ion; default=20
         *oxynotprotein*
@@ -36,6 +36,16 @@ def en(prot, ion, atomname='O', atomselection='name O* and not name OS', mindist
         *df*
             pandas.DataFrame dataframe containing resids, resnames, and atom names for each oxygen in the protein file
     '''
+    if atomselection is None:
+	if atomname == 'O':
+	    atomselection = 'name O* and not resname OS'
+	elif atomname == 'N':
+            atomselection = 'name N* and not resname NA and not resname NI'
+	elif atomname == 'S':
+            atomselection = 'name S* and not resname SR'
+        elif atomname == 'C':
+            atomselection = 'name C* and not resname CA and not resname CL and not resname CR and not resname CO and not resname CD and not resname CU and not resname CS'
+
     columns = ['resid', 'resname', 'atomname', 'distance']
 
     if pqr:

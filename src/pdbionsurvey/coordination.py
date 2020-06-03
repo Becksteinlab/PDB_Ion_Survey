@@ -278,7 +278,7 @@ def get_peaks(bundle, ionname, mindist=1):
     return m, density, peaks, mins
 
 def get_charge(ionname):
-    '''Gives locations of peaks and troughs in g(r)s.
+    '''Gives charge of ion in PDB files.
     :Arguments:
         *ionname*
             String name of ion of interest

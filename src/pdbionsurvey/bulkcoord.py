@@ -17,7 +17,6 @@ from matplotlib.ticker import MaxNLocator
 from os import path as pth
 import os
 import shutil
-import peakutils
 from glob import glob
 
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
@@ -74,14 +73,6 @@ def getbins(num):
     elif ts < .2:
         ts = .1
     return ts
-
-def get_peaks(f, thres=.1):
-    #f = pd.read_csv(csvpath[fil].abspath)
-    density = f['density'] / bulkdensity[atomname]
-    m = f['radius']
-    peaks = peakutils.indexes(density, thres=thres, min_dist=.5)
-    mins = peakutils.indexes(-density, thres=thres, min_dist=.5)
-    return m, density, peaks, mins
 
 def make_gees(ionname, atomname='O', maxdistance=15, bs=.1, bundle=b, path=csvpath):
     fig = plt.figure(figsize=(4,3))

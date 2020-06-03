@@ -252,7 +252,7 @@ def closest_oxy_distance(bundle, ion, atom='O', num_oxy=6):
 
     return oxys
 
-def get_peaks(bundle, ionname, mindist=1):
+def get_peaks(bundle, ionname, atomname, mindist=1):
     '''Gives locations of peaks and troughs in g(r)s.
     :Arguments:
         *bundle*
@@ -271,7 +271,7 @@ def get_peaks(bundle, ionname, mindist=1):
         *mins*
             np.array indices of minimum locations
     '''
-    m, density = coordination.gee(bundle, ionname, binnumber=200)
+    m, density = coordination.gee(bundle, ionname, atomname=atomname, binsize=.1)
     x = int(round(mindist / (m[1] - m[0])))
     peaks = peakutils.indexes(density, thres=.1, min_dist=x)
     mins = peakutils.indexes(-density, thres=.1, min_dist=x)

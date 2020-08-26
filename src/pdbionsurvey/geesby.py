@@ -30,6 +30,9 @@ plt.style.use('ggplot')
 sns.set_style('ticks')
 
 def make_gees_bytech_df(ionname, atomname='O', bs=.1, methods=None, label='total', bundle=b, path=csvpath):
+    """
+    :Arguments:
+    """
     gdfs = {}
     if not methods:
         methods = set(bundle.categories['method'])

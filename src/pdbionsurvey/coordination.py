@@ -37,11 +37,11 @@ def en(prot, ion, atomname='O', atomselection=None, mindistance=.5, maxdistance=
             pandas.DataFrame dataframe containing resids, resnames, and atom names for each oxygen in the protein file
     '''
     if atomselection is None:
-	if atomname == 'O':
-	    atomselection = 'name O* and not resname OS'
-	elif atomname == 'N':
+        if atomname == 'O':
+            atomselection = 'name O* and not resname OS'
+        elif atomname == 'N':
             atomselection = 'name N* and not resname NA and not resname NI'
-	elif atomname == 'S':
+        elif atomname == 'S':
             atomselection = 'name S* and not resname SR'
         elif atomname == 'C':
             atomselection = 'name C* and not resname CA and not resname CL and not resname CR and not resname CO and not resname CD and not resname CU and not resname CS'
